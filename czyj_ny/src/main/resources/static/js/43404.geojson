@@ -1,0 +1,12 @@
+{"type": "FeatureCollection","features": [
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.061635, 25.787925]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.058617, 25.793976]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.050353, 25.801458]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.047981, 25.813623]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.028578, 25.842372]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.053299, 25.865392]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.071481, 25.883596]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.110503, 25.910313]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.173456, 25.916228]}},
+{"type": "Feature","properties": {"orgno":"43404","sgs":"国网郴州供电公司","xgs":"国网北湖供电公司","gds":"鲁塘供电所","tg_no":"0499902381","tqlx":"01"},"geometry": {"type": "Point","coordinates": [113.249705, 25.945471]}}
+]}

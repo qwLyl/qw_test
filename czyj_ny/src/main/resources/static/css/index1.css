@@ -1,0 +1,74 @@
+@CHARSET "UTF-8";
+html{
+	font: 12px "宋体";
+}
+.top {
+	background-color: #F7F7F7;
+	height: 26px;
+	border-bottom: 1px solid #D8D8D8;
+}
+.top_page {
+	width: 970px;
+	height: 26px;
+	margin: 0 auto;
+}
+.top_page_l {
+	line-height: 26px;
+}
+.top_page_r ul li{
+	float: left;
+	padding-right: 10px;
+	line-height: 26px;
+}
+.ico {
+	background-color: #F7F7F7;
+	height: 400px;
+	border-bottom: 1px solid #D8D8D8;
+}
+.ico_page {
+	width: 970px;
+	height: 20px;
+	margin: 0 auto;
+}
+.ico_page_l {
+	float: left;
+	line-height: 20px;
+}
+	
+.t1 td{
+	padding-right: 10px;
+	padding-bottom: 10px;
+	
+}
+.ico_choose {
+	float: right!important;
+    position: absolute;
+    top: 57px;
+    display: none;
+    border: 1px solid #CCC;
+    box-shadow: 2px 1px 2px 0 rgba(0,0,0,0.2);
+    width: 190px;
+    background-color: #f2f2f2;
+}
+
+.ToolBar-BtnA {
+    padding: 6px 12px;
+    margin: 0px 0px 2px 0px;
+    background-color: #6fb3e0;
+    color: #FFF;
+    border-radius: 1px;
+    border: 1px solid #FFF;
+    cursor: pointer;
+    position: relative;
+    float: left;
+    font-size: 14px;
+    line-height: 18px;
+    user-select: none;
+}
+.content_iframe {
+	width: 970px;
+	height: 800px;
+	background-color: #f2f2f2;
+	margin: 0 auto;
+}
+

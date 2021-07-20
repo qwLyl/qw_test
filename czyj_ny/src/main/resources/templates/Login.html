@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<!--<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />-->
+		<title></title>
+
+		<link rel="stylesheet" th:href="@{css/index.css}">
+		<script th:src="@{/js/vue.js}"></script>
+		<script th:src="@{/js/index.js}"></script>
+		<script th:src="@{/js/axios.js}"></script>
+	</head>
+	<style>
+		body { margin: 0; padding: 0; }     
+  </style>
+	<style>
+	  #app{
+			height: 100%; 
+			width: 100%;
+			overflow: hidden; 
+			margin: 0px;
+			padding: 0px;
+			position: absolute;
+			
+			background-image: url(images/1.jpg);
+			background-repeat: round;
+		}
+		#logform{
+			width:500px;
+			height:270px;
+			/* background-color: #008080; */
+			border: 1px solid #e1e6e6;
+			box-shadow: #666 3px 3px 6px;
+		}
+		#img{
+			margin-top: 20px;
+			height: 60px;
+			width: auto;
+			margin-left: 5px;
+			padding-right: 5px;
+			border-right: 1px solid #e1e6e6;
+			float: left;
+		}
+		.font {
+			width:100%;
+			float: left;
+			margin-left: 0px;
+			line-height: 70px;
+			font-size: 1.5rem;
+			color: #1b7f7f;
+			font-weight: 800;
+			text-align: center;
+			text-shadow: 0 8px 9px #0cb2b3, 0px -2px 1px #fff;
+			/* text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; */
+			background: linear-gradient( to right, rgba(35,198,200,0.3) 0%, rgba(0,0,0,0) 10%, rgba(35,198,200,0.6) 20%, rgba(35,198,200,0.4) 30%, rgba(35,198,200,0.5) 40%, rgba(35,198,200,0.8) 50%, rgba(35,198,200,0.5) 60%, rgba(35,198,200,0.4) 70%, rgba(35,198,200,0.6) 80%, rgba(0,0,0,0) 90%, rgba(35,198,200,0.3) 100%);
+			/* border-bottom: 2px solid #fFF; */
+			
+		}
+		#title{
+			background: linear-gradient( to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 10%, rgba(35,198,200,0.3) 20%, rgba(35,198,200,0.4) 30%, rgba(35,198,200,0.5) 40%, rgba(35,198,200,0.8) 50%, rgba(35,198,200,0.5) 60%, rgba(35,198,200,0.4) 70%, rgba(35,198,200,0.3) 80%, rgba(0,0,0,0) 90%, rgba(0,0,0,0) 100%);
+			text-align: center;
+			color: #fff;
+			font-weight: 600;
+			text-shadow: 0 0 3px #008080, 0 0 3px #008080, 0 0 3px #008080, 0 0 3px #008080;
+		}
+		.font1 {
+		    
+				width:100%;
+				font-size: 0.8rem;
+				color: #fff;
+				text-align: center;
+				line-height: 20px;
+				height: 20px;
+				background-color: #0ea5a7;
+				top:0px;
+				float: left;width: 100%;
+				position: relative;
+		}
+		.font2{
+			width:100%;
+			float: left;
+			margin-left: 0px;
+			line-height: 70px;
+			font-size: 1.5rem;
+			color: #1b7f7f;
+			font-weight: 800;
+			text-align: center;
+			text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+			background: linear-gradient( to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 10%, rgba(34, 157, 158,0.6) 20%, rgba(34, 157, 158,0.7) 30%, rgba(34, 157, 158,0.8) 40%, rgba(34, 157, 158, 0.9) 50%, rgba(34, 157, 158,0.8) 60%, rgba(34, 157, 158,0.7) 70%, rgba(34, 157, 158,0.6) 80%, rgba(0,0,0,0) 90%, rgba(0,0,0,0) 100%);
+		}
+		.bd{
+			width:100%;
+			height: 60px;
+			justify-content: center;
+			display: flex;
+			align-items: center;
+		}
+		.el-button--primary{
+			background-color: #0ea5a7;
+			border-color: #0ea5a7;
+			padding: 10px 100px;
+			width: 280px;
+		}
+		.el-button--primary:focus, .el-button--primary:hover {
+		    background: #1fb7b9;
+		    border-color: #1fb7b9;
+		    color: #FFF;
+		}
+		.el-button--primary:active {
+		    background: #18abab;
+		    border-color: #18abab;
+		    color: #FFF;
+		}
+		.el-input.is-active .el-input__inner, .el-input__inner:focus {
+		    border-color: #70d8d8;
+		    outline: 0;
+		}
+	</style>
+	<body>
+		<el-container id="app" >
+			<el-row type="flex" style="justify-content:center;display: flex;align-items: center;width: 100%;">
+				<el-col id="logform":span="1">
+					<div  style="height: 70px;background-color: #008080;float: left;width: 100%;">
+						<div class="font">系统登录</div>
+					</div>
+					<!-- <div id="title" classclass="grid-content bg-purple-light">{{ message }}</div> -->
+					<div id="q" style="top: 0px;height: 208px;float: left;">
+							<div style="float: left;height: 100%;width:210px">
+								<div class="bd" style="height: 100px;">
+									<img id="img" src="images/gw.png"  style="">
+								</div>
+								<div class="bd" style="height: 30px;">
+									<div class="font1" style="background-color:#fff;color:rgb(7, 102, 85);
+									font-size:17px;font-weight: 600;padding-left: 20px;">
+										{{ dw }}
+									</div>
+								</div>
+							</div>
+							<div style="float: left;height: 100%;width:280px">
+								<div class="bd" style="margin-top: 10px;">
+									<el-input v-model="user" placeholder="请输入用户名"></el-input>
+								</div>
+								<div class="bd">
+									<el-input v-model="pass" placeholder="请输入密码"></el-input>
+								</div>
+								<div class="bd">
+									<el-button type="primary" v-on:click="Login()">登  录</el-button>
+								</div>
+							</div>
+					</div>							
+					<!-- <div class="font1">国网郴州市供电公司</div> -->
+				</el-col>
+				<el-row style="height: 70px;width: 100%;background-color: transparent;
+					float: left;position: absolute;top: 1px;border-bottom: 0px solid #008080;">	
+					<div class="font2">{{ bt }}</div>
+				</el-row>
+				<el-row style="height: 25px;width: 100%;background-color: transparent;
+					float: left;position: absolute;bottom: 1px;border-bottom: 1px solid #008080;">	
+					<div class="font1" style="background-color:transparent;color:#008080;font-size: 0.9rem">
+						<i class="el-icon-link">下载谷歌浏览器</i>
+					</div>
+				</el-row>
+				<!-- <el-row style="height:8px;width: 100%;
+					background-color: rgb(14, 165, 167);float: left;position: absolute;bottom: 0px;">	
+				</el-row> -->
+			</el-row>
+			
+		</el-container>
+	</body>
+	<script type="text/javascript">
+		
+		
+		var app = new Vue({
+			el: '#app',
+			data: {
+				user: '',
+				pass: "",
+				bt: '基于台变运营效率的变压器周转分析',
+				dw: '国网郴州市供电公司'
+			},
+			 methods: {
+					 Login: function () {
+						/*alert(this.user+this.pass);*/
+						window.location.href="http://localhost:10086/index"
+					 },
+			 }
+		});
+
+		
+	</script>
+</html>

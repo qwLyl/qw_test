@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head xmlns:th="http://www.thymeleaf.org">
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body,
+        html,
+        #allmap {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+            font-family: "微软雅黑";
+
+        }
+        .datagrid-body{
+            overflow-x: auto!important;
+        }
+        .Form-ButA {
+            text-decoration: none;
+            color: #ffffff !important;
+            background: #97d9ec;
+            border-color: #008282;
+            border-radius: 3px;
+            padding: 2px 2px;
+            display: inline-block;
+            width: 100%;
+            user-select: none;
+            /* background-image: none; */
+            border: 1px solid #619b3524;
+            touch-action: manipulation;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 400;
+            /* line-height: 1.42857143; */
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+    </style>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=7TAsymQNawfB9bZcqXW5kx1nR8hteClE"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/mapv.js}"></script>
+    <script type="text/javascript" th:src="@{js/jquery-easyui/jquery.easyui.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/jquery-easyui/locale/easyui-lang-zh_CN.js}"></script>
+    <script type="text/javascript" th:src="@{js/echarts.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/laydate/laydate.js}" charset="utf-8"></script>
+    <script th:src="@{/js/public.js}" type="text/javascript"></script>
+    <link rel="stylesheet" th:href="@{js/jquery-easyui/themes/icon.css}"	type="text/css" />
+    <link rel="stylesheet" th:href="@{js/jquery-easyui/themes/gray/easyui.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{js/laydate/theme/default/laydate.css}" type="text/css">
+    <link rel="stylesheet"  th:href="@{css/font-awesome.min.css}"  />
+    <link rel="stylesheet" th:href="@{css/public.css}" type="text/css" />
+    <link rel="stylesheet" th:href="@{css/style.css}"  type="text/css" />
+    <link th:href="@{css/font-awesome.css}" rel="stylesheet">
+</head>
+<body>
+<div style="width: 100%;height: 38px;background: #b0c8dc4a;color: #444;border-top: 1px solid #ccc;">
+    <div id="qq" style="width: 100%;height: 38px;margin-left: 10px;padding-top: 6px;">
+        <div  style="cursor:default;">
+             <span class="wz" style="margin-left: 40px">日期：</span>
+            <input  id="rq" readonly type="text" style="font-size: 11px;text-align: center;color:#797979;height: 25px;border: 1px solid #D3D3D3;border-radius: 4px"  value="" placeholder=" 请选择日期" >
+
+            <span class="wz" style="margin-left: 40px;vertical-align:middle;">水清相似度：</span>
+            <input class="easyui-textbox" data-options="" id="ranges" style="width:120px">
+            <span class="wz" style="margin-left: 40px;vertical-align:middle;">利用小时数：</span>
+            <input class="easyui-textbox" data-options="" id="lyxss" style="width:120px">
+            <span class="wz" style="margin-left: 40px;vertical-align:middle;">上网电量：</span>
+            <input class="easyui-textbox" data-options="" id="swdl" style="width:120px">
+            <span class="wz" style="margin-left: 40px;vertical-align:middle;">下网电量：</span>
+            <input class="easyui-textbox" data-options="" id="xwdl" style="width:120px">
+
+            <a id="query" class="Form-ButA"  ondragstart="return false" href="javascript:void(0)" onclick="query()" style="width: 60px;padding: 3px 0px;margin-left: 40px;">
+                <i class="icon-search"></i>查询
+            </a>
+            <a  class="Form-ButA" style="width:60px;padding: 3px 0px;margin-left: 20px" onclick="putout()">
+                <i class="icon-calendar" style="padding-right: 6px;"></i>导出</a>
+        </div>
+        <div>
+
+        </div>
+    </div>
+
+</div>
+<div id="qfpm" class="ibox-content"
+     style="background-color: #fff;width: calc(100vw);height: calc(94.8vh);">
+    <table id='day_Gride' class="easyui-datagrid"
+           style="height: 100%; width: 99%"
+           data-options="singleSelect:true,
+                    method:'get',
+                    onDblClickRow:onDblClickRow,
+                    autoRowHeight:true,
+					fitColumns:false,
+					striped : true,
+                    sortOrder : 'desc',
+                    pagination:true,
+                    fit:true">
+        <thead>
+        <tr>
+            <th data-options="field:'hydro_id',width:150,align:'center'," >小水电标识</th>
+            <th data-options="field:'hydro_no',width:150,align:'center'" >小水电编号</th>
+            <th data-options="field:'hydro_nm',width:300,align:'center'" >小水电名称</th>
+            <th data-options="field:'unit_install_capt',width:150,align:'center'">装机容量</th>
+            <th data-options="field:'internet_elecqt',width:150,align:'center'" >上网容量</th>
+            <th data-options="field:'gnrtelec_qt',width:150,align:'center'" >下网容量</th>
+            <th data-options="field:'ranges',width:100,align:'center'" >水清相似度</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<div id="y_info" style="background-color: rgba(204, 204, 204, 0.37)!important; width: 100%; top: 0px;bottom: 0px;z-index: 9999;display: none;position: absolute;">
+    <div class="panel window messager-window" style="display: block; width: 88.6%;height:71%;left: 87px; top: 90px; box-shadow:0px 1px 6px 4px rgba(181, 181, 179, 0.5), 23px 36px 31px 14px rgba(255,255,255,0.5)">
+        <div class="panel-header panel-header-noborder window-header" style="width: 100%;">
+            <div class="panel-title" id="mx_bt" style="text-align: center">日数据信息</div>
+            <a  class="Form-ButA" style="width:54px;height: 22px;padding: 3px 0px;margin-left: 20px;position: absolute;top: -2.5px;right: 18%" onclick="putout_mx()">
+                <i class="icon-calendar" style="padding-right: 6px;"></i>导出</a>
+            <div class="panel-tool" onclick="close1()">
+                <a href="javascript:void(0)"  class="panel-tool-close" ></a>
+            </div>
+        </div>
+    </div>
+    <div style="width: calc(87.7vw);height: calc(65vh);margin-top: 124px;margin-left: 94px;">
+        <table id='month_info_Gride' class="easyui-datagrid"
+               style="height: 100%; width: 99%"
+               data-options="singleSelect:true,
+                    method:'get',
+                    autoRowHeight:true,
+					fitColumns:false,
+					striped : true,
+                    sortOrder : 'desc',
+                    pagination:true,
+                    fit:true">
+            <thead>
+            <tr>
+                <th data-options="field:'hydro_id',width:120,align:'center'," >小水电标识</th>
+                <th data-options="field:'hydro_no',width:100,align:'center'" >小水电编号</th>
+                <th data-options="field:'hydro_nm',width:80,align:'center'" >小水电名称</th>
+                <th data-options="field:'hydro_v',width:80,align:'center'" >供电电压</th>
+                <th data-options="field:'gk_bh',width:80,align:'center'" >关口编号</th>
+                <th data-options="field:'gk_nm',width:80,align:'center'" >关口名称</th>
+                <th data-options="field:'gk_xz',width:80,align:'center'" >关口性质</th>
+                <th data-options="field:'org_qy',width:80,align:'center'" >所在区域</th>
+                <th data-options="field:'mp_no',width:80,align:'center'" >计量点编号</th>
+                <th data-options="field:'mp_nm',width:80,align:'center'" >计量点名称</th>
+                <th data-options="field:'asst_id',width:80,align:'center'" >表号</th>
+                <th data-options="field:'asst_no',width:80,align:'center'" >资产编号</th>
+                <th data-options="field:'comprehen_mulrate',width:80,align:'center'" >倍率</th>
+                <th data-options="field:'jsdwz',width:80,align:'center'" >结算点位置</th>
+                <th data-options="field:'cons_no',width:80,align:'center'" >用户编号</th>
+                <th data-options="field:'cons_nm',width:80,align:'center'" >用户名称</th>
+                <th data-options="field:'unit_install_capt',width:80,align:'center'" >装机容量</th>
+                <th data-options="field:'inst_loc',width:80,align:'center'" >水电站位置</th>
+                <th data-options="field:'remark',width:80,align:'center'" >备注</th>
+            </tr>
+
+            </thead>
+        </table>
+    </div>
+</div>
+</body>
+<script>
+    $(function(){
+        var max_day=max_date("day");
+        var ranges="5";
+        $('#day_Gride').datagrid('loadData', {
+            total : 0,
+            rows : []
+        });
+        $("#day_Gride").datagrid("reload",'http://localhost:10086/xsd/SelectR_xsd?rq_date='+max_day+"&ranges="+ranges);
+        //获取最大日期
+        $("#rq").val(max_day);
+
+
+    })
+
+    //年月选择器
+    laydate.render({
+        elem : '#rq',
+        value : showDate()
+    });
+
+    function showDate(){
+        var mydate = new Date();
+        var str = mydate.getFullYear()+"-";
+        str += ((mydate.getMonth()+1)<10?'0':'')+(mydate.getMonth()+1)+"-";
+        str += ((mydate.getDate()-1)<10?'0':'')+(mydate.getDate());
+        return str;
+    }
+
+    //点击函数
+    function onDblClickRow(index, row) {
+        //var data=$('#day_Gride').datagrid('getData');
+        $("#y_info").css("display","block");
+        var hydro_no=row.hydro_no;
+        var rq='2020-09-21';
+        var ranges="5";
+        $('#month_info_Gride').datagrid('loadData', {
+            total : 0,
+            rows : []
+        });
+        $("#month_info_Gride").datagrid("reload",'http://localhost:10086/xsd/SelectY_info?hydro_no='+hydro_no);
+
+    }
+
+    //隐藏弹出框
+    function close1(){
+        $("#y_info").css("display","none");
+    }
+
+    function query(){
+        var rq=$("#rq").val();
+        var ranges=$("#ranges").val();
+        var lyxss=$("#lyxss").val();
+        var swdl=$("#swdl").val();
+        var xwdl=$("#xwdl").val();
+        $('#day_Gride').datagrid('loadData', {
+            total : 0,
+            rows : []
+        });
+        $("#day_Gride").datagrid("reload",'http://localhost:10086/xsd/Get_day_xx?rq_date='+rq+"&ranges="+ranges+"&internet_elecqt="+swdl+"&gnrtelec_qt="+xwdl);
+
+    }
+
+    //导出
+    function putout(){
+        var GridName='day_Gride';
+        var rq=$("#rq").val();
+        var filename="小水电日信息"+rq;
+        ExpExcel(GridName,filename);
+    }
+
+    //导出小水电信息
+    function putout_mx(){
+        var GridName='month_info_Gride';
+        var rq=$("#rq").val();
+        var filename="小水电"+rq;
+        ExpExcel(GridName,filename);
+    }
+
+    //获取最大日期
+    function max_date(rq_lx){
+        var date="";
+        $.ajax({
+            async : false,
+            type : 'get',
+            url : 'http://localhost:10086/xsd/Max_date',
+            data : {
+                rq_lx:rq_lx
+            },
+            success : function(data) {
+                date=data;
+
+            }
+        });
+        return date;
+    }
+</script>
+</html>

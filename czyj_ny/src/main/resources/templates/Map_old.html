@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body,
+        html,
+        #allmap {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+            font-family: "微软雅黑";
+
+        }
+        .BMap_bubble_title{
+            text-align: center;
+        }
+    </style>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=7TAsymQNawfB9bZcqXW5kx1nR8hteClE"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/js/mapv.js}"></script>
+    <script type="text/javascript" th:src="@{js/jquery-easyui/jquery.easyui.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/jquery-easyui/locale/easyui-lang-zh_CN.js}"></script>
+    <script type="text/javascript" th:src="@{js/echarts.min.js}"></script>
+    <script type="text/javascript" th:src="@{js/laydate/laydate.js}" charset="utf-8"></script>
+    <script th:src="@{/js/public.js}" type="text/javascript"></script>
+    <link rel="stylesheet" th:href="@{js/jquery-easyui/themes/icon.css}"	type="text/css" />
+    <link rel="stylesheet" th:href="@{js/jquery-easyui/themes/gray/easyui.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{js/laydate/theme/default/laydate.css}" type="text/css">
+    <link rel="stylesheet"  th:href="@{css/font-awesome.min.css}"  />
+    <link rel="stylesheet" th:href="@{css/public.css}" type="text/css" />
+    <link rel="stylesheet" th:href="@{css/style.css}"  type="text/css" />
+    <link th:href="@{css/font-awesome.css}" rel="stylesheet">
+    <title></title>
+</head>
+<body>
+<div id="allmap"></div>
+<!--<div id="tc" style="width: 400px;height: 250px;position: absolute;z-index: 99;border: 1px solid #6b9cde;top: 0px">
+    <table id='xsd_Gride' class="easyui-datagrid"
+           style="height: 100%; width: 99%"
+           data-options="singleSelect:true,
+                    method:'get',
+                    onDblClickRow:onDblClickRow,
+                    autoRowHeight:true,
+                    fitColumns:false,
+                    striped : true,
+                    sortOrder : 'desc',
+                    pagination:true,
+                    pageSize: 100,
+                    pageList: [100,500,1000,5000],
+                    fit:true">
+        <thead>
+        <tr>
+            <th data-options="field:'hydro_id',width:120,align:'center'," >小水电标识</th>
+            <th data-options="field:'hydro_no',width:100,align:'center'" >小水电编号</th>
+            <th data-options="field:'hydro_nm',width:80,align:'center'" >小水电名称</th>
+            <th data-options="field:'unit_install_capt',width:80,align:'center'">装机容量</th>
+            <th data-options="field:'internet_elecqt',width:50,align:'center'" >上网容量</th>
+            <th data-options="field:'gnrtelec_qt',width:130,align:'center'" >下网容量</th>
+            <th data-options="field:'ranges',width:100,align:'center'" >范围</th>
+        </tr>
+        </thead>
+    </table>
+</div>-->
+</body>
+</html>
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map("allmap",{enableMapClick:false});
+    map.centerAndZoom(new BMap.Point(113.037704468,25.7822639757),10);
+    map_kj();
+    $(function(){
+        var top_left_control = new BMap.ScaleControl({
+            anchor : BMAP_ANCHOR_BOTTOM_LEFT
+        });// 左上角，添加比例尺
+        map.addControl(top_left_control);
+       // yuan();
+        $.ajax({
+            url : 'http://localhost:10086/xsd/tqtoGeojson',
+            async : false,
+            data : {
+
+            },
+            success : function(redata) {
+            }
+        })
+        //加坐标点
+        spot();
+    })
+
+    //点击事件弹窗
+    var opts = {
+        width : 390,     // 信息窗口宽度
+        height: 195,     // 信息窗口高度
+        title : "<span style='font-size:12px;color:#7499b9;;background-color:#FFFFFF;font-weight: 600;text-align: center' id='cons_nm'></span>" , // 信息窗口标题
+        enableMessage:true,//设置允许信息窗发送短息
+        message:"亲耐滴，晚上一起吃个饭吧？戳下面的链接看下地址喔~",
+
+    }
+
+    var str='<table style="color: #727171;font-weight: 600;line-height: 17px;">\n' +
+        '  <tr>\n' +
+        '    <th style="width: 235px;"><span>用户编号：</span><span id="cons_no"></span></th>\n' +
+        '    <th style="width: 235px;"><span>用电类别：</span><span id="elec_typ_dsc"></span></th>\n' +
+        '  </tr>\n' +
+        '  <tr>\n' +
+        '    <th style="width: 235px;"><span>供电单位编号：</span><span id="org_no"></span></th>\n' +
+        '    <th style="width: 235px;"><span>供电单位名称：</span><span id="org_no"></span></th>\n' +
+        '  </tr>\n' +
+        '  <tr>\n' +
+        '    <td><span>运行容量：</span><span id="run_cap"></span></td>\n' +
+        '    <td><span>供电电压：</span><span id="feed_volt_dsc"></span></td>\n' +
+        '  </tr>\n' +
+/*        '  <tr>\n' +
+        '    <td><span>关口名称：</span><span id="gk_nm"></span></td>\n' +
+        '    <td><span>关口性质：</span><span id="gk_xz"></span></td>\n' +
+        '  </tr>\n' +
+        '  <tr>\n' +
+        '    <td><span>所在区域：</span><span id="org_qy"></span></td>\n' +
+        '    <td><span>计量点编号：</span><span id="mp_no"></span></td>\n' +
+        '  </tr>\n' +
+        '  <tr>\n' +
+        '    <td><span>计量点名称：</span><span id="mp_nm"></span></td>\n' +
+        '    <td><span>表号：</span><span id="asst_id"></span></td>\n' +
+        '  </tr>\n' +
+        '  <tr>\n' +
+        '    <td><span>资产编号：</span><span id="asst_no"></span></td>\n' +
+        '    <td><span>倍率：</span><span id="comprehen_mulrate"></span></td>\n' +
+        '  </tr>\n' +
+        '  <tr>\n' +
+        '    <td><span>结算点位置：</span><span id="jsdwz"></span></td>\n' +
+        '    <td><span>用户编号：</span><span id="cons_no"></span></td>\n' +
+        '  </tr>\n' +
+        '  <tr>\n' +
+        '    <td><span>用户名称：</span><span id="cons_nm"></span></td>\n' +
+        '    <td><span>装机容量：</span><span id="unit_install_capt"></span></td>\n' +
+        '  </tr>\n' +*/
+        '  <tr>\n' +
+        '    <td colspan="2"><span>水电站位置：</span><span id="inst_addr"></span></td>\n' +
+        '  </tr>\n' +
+        '</table>'
+    var infoWindow = new BMap.InfoWindow(str, opts);  // 创建信息窗口对象
+
+    //封装方法
+    function fzl(rs,lx){
+
+        var list=[];
+        var data1 = [];
+
+        var qq=rs.features.length;
+        var img = new Image();
+        switch (lx){
+            case 0:
+                img.src = 'images/01.png';
+                break;
+            case 1:
+                img.src = 'images/02.png';
+                break;
+            case 2:
+                img.src = 'images/03.png';
+                break;
+            case 3:
+                img.src = 'images/04.png';
+                break;
+            case 4:
+                img.src = 'images/05.png';
+                break;
+            case 5:
+                img.src = 'images/06.png';
+                break;
+            case 6:
+                img.src = 'images/07.png';
+                break;
+            case 7:
+                img.src = 'images/08.png';
+                break;
+            case 8:
+                img.src = 'images/09.png';
+                break;
+            case 9:
+                img.src = 'images/10.png';
+                break;
+            default:
+                break;
+        }
+
+        for (var i = 0; i < qq; i++) {
+            var sj=[];
+            var z1=JSON.stringify(rs.features[i].geometry.coordinates[0]);
+            var z2=JSON.stringify(rs.features[i].geometry.coordinates[1]);
+            sj.push(z1);
+            sj.push(z2);
+            var geoCoord = sj;
+            //var point1 = new BMap.Point(z1,z2);
+            list.push(new BMap.Point(z1,z2));
+            //list.push(z2);
+            data1.push({
+                geometry: {
+                    type: 'Point',
+                    coordinates: geoCoord,
+                    conty_org_no:rs.features[i].properties.conty_org_no,
+                    tg_org_no:rs.features[i].properties.tg_org_no,
+                    line_no:rs.features[i].properties.line_no,
+                    tg_id:rs.features[i].properties.tg_id,
+                    cap:rs.features[i].properties.cap,
+                    inst_addr:rs.features[i].properties.inst_addr
+                },
+                icon: img
+            });
+        }
+
+        return {a:list,b:data1};
+    }
+    //地图控件
+    function map_kj(){
+        map.addControl(new BMap.MapTypeControl({
+
+            mapTypes:[
+                BMAP_NORMAL_MAP,
+                BMAP_HYBRID_MAP
+            ]}));
+        var top_left_control = new BMap.ScaleControl({
+            anchor : BMAP_ANCHOR_BOTTOM_LEFT
+        });// 左上角，添加比例尺
+
+        var top_right_navigation = new BMap.NavigationControl({
+            anchor : BMAP_ANCHOR_BOTTOM_RIGHT,
+            type : BMAP_NAVIGATION_CONTROL_ZOOM
+        }); //右上角，仅包含平移和缩放按钮
+        /*缩放控件type有四种类型:
+         BMAP_NAVIGATION_CONTROL_SMALL：仅包含平移和缩放按钮；BMAP_NAVIGATION_CONTROL_PAN:仅包含平移按钮；BMAP_NAVIGATION_CONTROL_ZOOM：仅包含缩放按钮*/
+
+        map.enableInertialDragging();
+
+        map.enableContinuousZoom();
+
+
+        add_control();
+        //添加控件和比例尺
+        function add_control() {
+            map.addControl(top_left_control);
+
+            map.addControl(top_right_navigation);
+            map.enableScrollWheelZoom(true);
+        }
+        //移除控件和比例尺
+        function delete_control() {
+            map.removeControl(top_left_control);
+            map.removeControl(top_left_navigation);
+            map.removeControl(top_right_navigation);
+        }
+    }
+
+    //添加圆
+    function yuan(){
+        var circle = new BMap.Circle(new BMap.Point(113.249705, 25.945471),5000,{
+            strokeColor:"red",//边线颜色。
+            strokeWeight:1,//边线的宽度，以像素为单位。
+            strokeOpacity:1,//边线透明度，取值范围0 - 1。
+            fillOpacity: 0.3,//填充的透明度，取值范围0 - 1。
+            strokeStyle: 'solid',//边线的样式，solid或dashed。
+            fillColor:"pink"     //填充色
+        }); //创建圆
+        map.addOverlay(circle);            //增加圆
+    }
+    //年月选择器
+    laydate.render({
+       // elem : '#rq',
+        value : showDate()
+    });
+
+    function showDate(){
+        var mydate = new Date();
+        var str = mydate.getFullYear()+"-";
+        str += ((mydate.getMonth()+1)<10?'0':'')+(mydate.getMonth()+1)+"-";
+        str += ((mydate.getDate()-1)<10?'0':'')+(mydate.getDate());
+        return str;
+    }
+
+    //点击函数
+    function onDblClickRow(index, row) {
+        var data=$('#xsd_Gride').datagrid('getData');
+        var hydro_no=row.hydro_no;
+        var rq='2020-09-21';
+        var ranges="5";
+        $('#xsd_Gride').datagrid('loadData', {
+            total : 0,
+            rows : []
+        });
+        $("#xsd_Gride").datagrid("reload",'http://localhost:10086/xsd/SelectXsd_xx?rq='+rq+"&ranges="+ranges);
+
+
+    }
+
+    function spot(){
+        $.get('/xsd_info.geojson', function(rs) {
+            var lx=0;
+            var list=[];
+            var data1=[];
+            rs=$.parseJSON(rs);
+            var cc=fzl(rs,lx);
+            list=cc.a;
+            data1=cc.b;
+            //var marker = new BMap.Marker(list);  // 创建标注
+            var dataSet = new mapv.DataSet(data1);
+            //map.addOverlay(marker);
+            var options = {
+                draw: 'icon',
+                width: 8,
+                height: 8,
+                methods: { // 一些事件回调函数
+                    click: function (item) { // 点击事件，返回对应点击元素的对象值
+                        if(item!=null){
+
+                        }
+                    },
+                    mousemove: function(item) { // 鼠标移动事件，对应鼠标经过的元素对象值
+                        if(item!=null){
+                            var d1=parseFloat(item.geometry.coordinates[0]);
+                            var d2=parseFloat(item.geometry.coordinates[1]);
+                            var tg_id=item.geometry.tg_id;
+                            var point_a=new BMap.Point(d1,d2);
+                            map.openInfoWindow(infoWindow, point_a);
+                            $.ajax({
+                                url : 'http://localhost:10086/xsd/SelectHydro_info?tg_id='+tg_id,
+                                async : false,
+                                data : {
+
+                                },
+                                success : function(redata) {
+                                    var data = $.parseJSON(redata);
+                                    var cons_no=data[0].cons_no;
+                                    var cons_nm=data[0].cons_nm;
+                                    var elec_typ_dsc=data[0].elec_typ_dsc;
+                                    var org_no=data[0].org_no;
+                                    var org_nm=data[0].org_nm;
+                                    var run_cap=data[0].run_cap;
+                                    var feed_volt_dsc=data[0].feed_volt_dsc;
+                                    $("#cons_no").text(cons_no);
+                                    $("#cons_nm").text(cons_nm);
+                                    $("#elec_typ_dsc").text(elec_typ_dsc);
+                                    $("#org_no").text(org_no);
+                                    $("#org_nm").text(org_nm);
+                                    $("#run_cap").text(run_cap);
+                                    $("#feed_volt_dsc").text(feed_volt_dsc);
+                                    $("#inst_addr").text(item.geometry.inst_addr);
+
+                                    /*var cons_id=redata[0].cons_id;
+                                    var cust_id=redata[0].cust_id;
+                                    var cust_no=redata[0].cust_no;
+                                    var cust_nm=redata[0].cust_nm;
+                                    var elec_cust_typ=redata[0].elec_cust_typ;
+                                    var elec_cust_typ_dsc=redata[0].elec_cust_typ_dsc;
+                                    var elec_typ=redata[0].elec_typ;
+                                    var cntrct_cap=redata[0].cntrct_cap;
+                                    var feed_volt=redata[0].feed_volt;
+                                    var cons_st=redata[0].cons_st;
+                                    var cons_st_dsc=redata[0].cons_st_dsc;
+                                    var poweroff_flg=redata[0].poweroff_flg;
+                                    var transfer_flg=redata[0].transfer_flg;
+                                    var mr_sect_no=redata[0].mr_sect_no;
+                                    var tg_id=redata[0].tg_id;
+                                    var cp_no=redata[0].cp_no;
+                                    var pub_priv_flg=redata[0].pub_priv_flg;
+                                    var mr_sect_nm=redata[0].mr_sect_nm;
+                                    var mr_day=redata[0].mr_day;
+                                    var tg_no=redata[0].tg_no;
+                                    var tg_nm=redata[0].tg_nm;
+                                    var org_typ_cd=redata[0].org_typ_cd;
+                                    var org_typ_dsc=redata[0].org_typ_dsc;
+                                    var unit_install_capt=redata[0].unit_install_capt;
+                                    var data_dt=redata[0].data_dt;*/
+                                }
+                            })
+                        }
+                    },
+                    tap: function(item) {
+                        //alert("ccc"); // 只针对移动端,点击事件
+                    }
+                },
+            }
+
+            var mapvLayer = new mapv.baiduMapLayer(map, dataSet, options);
+        });
+    }
+
+</script>

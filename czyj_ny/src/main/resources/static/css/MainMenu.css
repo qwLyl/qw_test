@@ -1,0 +1,46 @@
+.MainMenu{
+    background: linear-gradient(to bottom,#fff 0,#bbc0c3 100%);
+	top: 0px;
+    float: righ!important;
+    margin: 0!important;
+    border: 0px solid #FF5722;
+    padding-left: 0;
+    list-style: none;
+    padding: 0 0 0 10;
+}
+.MainMenu-Top{
+    color: #008282;
+    line-height: 22px;
+    height: 23px;
+    border-left: 1px solid #fff;
+    padding: 0 3px 0 3px;
+    margin: 4px 0px;
+    position: relative;
+    float: left;
+    display: block;
+    background-color: transparent;
+    border-radius: 1px;
+}
+.MainMenu-Top-active{
+	background: linear-gradient(to bottom,#21bfbf 0,#257373c9 100%);
+    color: #fff;
+}
+.MainMenu-Top:hover{
+    background-color: #417ea273;
+}
+.MainMenu-Top-a {
+    /* background-color: #039696; 
+    color: #3c7fa5;*/
+    font-size: 13px;
+    display: block;
+    line-height: inherit;
+    text-align: center;
+    height: inherit;
+    width: auto;
+    padding: 0 8px;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    user-select: none;
+}

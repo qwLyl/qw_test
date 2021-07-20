@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zckj.demo.dao.Clgl.ClglDao">
+    <select id="Select_cl_info" parameterType="com.zckj.demo.bean.Clgl.Pcd" resultType="com.zckj.demo.bean.Clgl.Pcd">
+         select C.ERROR_TYPE,O.* from ADS_CLGL_ERROR_INFO C,(
+        select * from
+         (select * from
+         (
+         select t1.*,row_number() over(partition by vehicle_number,substr(rq,0,10) order by SPEED desc) rn from ADS_CLGL_XSCL_D t1
+         )
+         where rn = 1 and to_date(substr(rq,0,10),'yyyy-mm-dd') between to_date(#{send_time},'yyyy-mm-dd') and to_date(#{enddate},'yyyy-mm-dd') and SPEED>0)
+         where (substr(rq,0,10),vehicle_number) in
+         (select substr(rq,0,10),vehicle_number from
+         (
+         select t1.*,row_number() over(partition by vehicle_number,substr(rq,0,10) order by SPEED desc) rn from ADS_CLGL_XSCL_D t1
+         )
+         where rn = 1 and to_date(substr(rq,0,10),'yyyy-mm-dd') between to_date(#{send_time},'yyyy-mm-dd') and to_date(#{enddate},'yyyy-mm-dd') and SPEED>0
+         minus
+         select substr(send_time,0,10),VEHICLE_NUMBER from
+         (
+         select t2.*,row_number() over(partition by vehicle_number,substr(send_time,0,10) order by USE_TOTAL_TIME desc) rn1 from ADS_CLGL_PCD_D t2
+         )
+         where rn1 = 1 and to_date(substr(send_time,0,10),'yyyy-mm-dd') between to_date(#{send_time},'yyyy-mm-dd') and to_date(#{enddate},'yyyy-mm-dd'))) O
+        where C.vehicle_number=O.vehicle_number
+
+    </select>
+
+    <select id="Select_cl_info_vn" parameterType="com.zckj.demo.bean.Clgl.Pcd" resultType="com.zckj.demo.bean.Clgl.Pcd">
+        select  C.ERROR_TYPE,O.*  from ADS_CLGL_ERROR_INFO C,(
+        select * from(
+        select t1.*,row_number() over(partition by vehicle_number,substr(rq,0,10) order by rq desc) rn from ADS_CLGL_XSCL_D t1)
+        where rn = 1 and  vehicle_number like '%${vehicle_number}%') O
+        where C.vehicle_number=O.vehicle_number
+    </select>
+
+    <select id="Select_cl_info_more" parameterType="com.zckj.demo.bean.Clgl.Pcd" resultType="com.zckj.demo.bean.Clgl.Pcd">
+        select  C.error_type,O.*  from ADS_CLGL_ERROR_INFO C,(
+        select * from(
+        select t1.*,row_number() over(partition by vehicle_number,substr(rq,0,10) order by rq desc) rn from ADS_CLGL_XSCL_D t1)
+        where rn = 1 and to_date(substr(rq,0,10),'yyyy-mm-dd') between to_date(#{send_time},'yyyy-mm-dd') and to_date(#{enddate},'yyyy-mm-dd')) O
+        where C.vehicle_number=O.vehicle_number
+        <if test="error_type!=null and error_type!=''">
+            and C.error_type=#{error_type}
+        </if>
+    </select>
+</mapper>

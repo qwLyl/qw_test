@@ -1,0 +1,75 @@
+@CHARSET "UTF-8";
+
+.div1 {
+	border: 0px solid red;
+	float: left;
+	width: 100%;
+	height: 50px;
+	position: absolute;
+	background-color: #f6f8f8;
+	text-align: center;
+	color: #00a8a8;
+}
+
+.div0 {
+	float: left;
+	width: 100%;
+	position: absolute;
+	height: 40px;
+	top: 40px;
+	border-color: #edf1f2;
+	background-color: #f6f8f8;
+	color: #333;
+	font-weight: 700;
+	border-bottom: 1px solid transparent;
+	/*background-image: linear-gradient(to bottom,#06C3C3 0,#008282 100%);*/
+	background-repeat: repeat-x;
+	
+}
+
+.div2 {
+	float: left;
+	width: 100%;
+	position: absolute;
+	top: 40px;
+	bottom: 0px;
+	background-color: #ffffff;
+	color: inherit;
+	border: 0px solid #dee5e7;
+	
+}
+
+.td1 {
+	text-align: right;
+	width: 70px;
+}
+
+.td2 {
+	width: 120px;
+}
+
+.leftdiv {
+	    border: 0px solid red;
+    float: left;
+    width: 10%;
+    position: absolute;
+    bottom: 0px;
+    top: 0px;
+    left: 3%;
+}
+
+.rightdiv {
+	border: 0px solid red;
+    float: right;
+    width: 80%;
+    position: absolute;
+    left: 14%;
+    bottom: 0px;
+    top: 0px;
+}
+
+.unit_logo{background-image: url("../images/titlebar.gif"); text-align: center;
+			height: 25px; line-height: 25px; color: white;}
+			
+
+a:hover { color:blue; }

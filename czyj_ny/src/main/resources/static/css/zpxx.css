@@ -1,0 +1,44 @@
+@CHARSET "UTF-8";
+.zpxxgw{
+font: bold 24px/40px "华文中宋","宋体";
+    clear: both;
+}
+.zpxxqyname{
+font: bold 20px/40px "华文中宋","宋体";
+    clear: both;
+}
+
+.geduanxian{
+	width: 100%;
+	height:2px;
+	background-color: #006e6b;
+}
+.xxdiv{
+	margin-top: 20px;
+}
+.xqul{
+	zoom: 1;
+    display: block;
+}
+.xqul li{
+	float: left;
+    font: 500 14px/28px "simsun";
+    color: #333;
+    width: 280px;
+}
+.msdiv{
+	margin-top: 10px;
+	border: 0px solid red;
+    width: 100%;
+    float: left;
+}
+.msdiv2{
+	margin-top: 10px;
+}
+.zwzt{
+	font-size: 18px;
+}
+.nrzt{
+	font-size: 15px;
+    font-weight: bold;
+}

@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zckj.demo.dao.Ny.NyDao">
+
+    <!--行业分类-->
+    <select id="Select_list_info" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+        <if test="indust_typ_nm!='' and indust_typ_nm!=null">
+            select indust_typ_dsc_5lvl indust_typ_nm,indust_typ_5lvl indust_typ
+            from ADS_NY_INDUST_TYP where indust_typ_dsc_5lvl !=' '
+            group  by indust_typ_dsc_5lvl,indust_typ_5lvl order by indust_typ_5lvl
+        </if>
+    </select>
+
+    <!--行业分类-->
+    <select id="Select_indust_info" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+        select indust_typ_dsc_6lvl indust_typ_nm_more
+        from ADS_NY_INDUST_TYP t
+        where indust_typ_dsc_5lvl=#{indust_typ_nm_more}
+        group  by indust_typ_dsc_6lvl order by count(*)
+    </select>
+
+    <!--业务类型下拉框查询-->
+    <select id="Select_yekuang_busi" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+        select busi_app_typ_nm,busi_app_typ from ads_ny_busi_app_d where busi_app_typ_nm !=' '
+        group by busi_app_typ_nm,busi_app_typ
+        order by busi_app_typ
+    </select>
+
+
+    <!--用户数，推荐，历史短信饼图展示-->
+    <select id="Select_leftTop_Zj" parameterType="com.zckj.demo.bean.Ny.Ads_ny_sum_number" resultType="com.zckj.demo.bean.Ny.Ads_ny_sum_number">
+        select * from ads_ny_sum_number where org_no = #{org_no} and to_date(substr(rq, 0, 4), 'yyyy') =to_date(substr( #{rq}, 0, 4), 'yyyy')and date_type = '年'
+    </select>
+
+    <!--日短信饼图展示-->
+    <select id="Select_leftTop_Zj_d" parameterType="com.zckj.demo.bean.Ny.Ads_ny_sum_number" resultType="com.zckj.demo.bean.Ny.Ads_ny_sum_number">
+        select * from ads_ny_sum_number where org_no = #{org_no} and rq = #{rq} and date_type = '日'
+    </select>
+
+    <!--日短信柱状图-->
+    <select id="Select_bodyTop" parameterType="com.zckj.demo.bean.Ny.Ads_ny_sum_number" resultType="com.zckj.demo.bean.Ny.Ads_ny_sum_number">
+        select *  from  ads_ny_sum_number
+        where rq = #{rq} and date_type = '日' and
+        <if test="org_typ_cd == 5">
+            org_no like '${org_no}%' and org_typ_cd = '04'
+        </if>
+        <if test="org_typ_cd == 7">
+            org_no like '${org_no}%' and org_typ_cd = '05'
+        </if>
+        <if test="org_typ_cd == 9">
+            org_no = #{org_no}
+        </if>
+    </select>
+
+    <!--日短信推到前30天的单位简称总查询-->
+    <select id="Select_rightTop" parameterType="com.zckj.demo.bean.Ny.Ads_ny_sum_number" resultType="com.zckj.demo.bean.Ny.Ads_ny_sum_number">
+        select org_jc  from  ads_cz_xmz_org
+        where
+        <if test="org_typ_cd == 5">
+            org_no like '${org_no}%' and org_typ_cd = '04'
+        </if>
+        <if test="org_typ_cd == 7">
+            org_no like '${org_no}%' and org_typ_cd = '05'
+        </if>
+        <if test="org_typ_cd == 9">
+            org_no = #{org_no}
+        </if>
+    </select>
+
+    <!--日短信推到前30天的赋值查询-->
+    <select id="Select_rightTop_fz" parameterType="com.zckj.demo.bean.Ny.Ads_ny_sum_number" resultType="com.zckj.demo.bean.Ny.Ads_ny_sum_number">
+        select *  from  ads_ny_sum_number
+        where date_type = '日' and rq between #{stDate}  and  #{edDate} and
+        <if test="org_typ_cd == 5">
+            org_no like '${org_no}%' and org_typ_cd = '04'
+        </if>
+        <if test="org_typ_cd == 7">
+            org_no like '${org_no}%' and org_typ_cd = '05'
+        </if>
+        <if test="org_typ_cd == 9">
+            org_no = #{org_no}
+        </if>
+    </select>
+
+    <!--推荐套餐详情-->
+    <select id="Select_leftFoot" parameterType="com.zckj.demo.bean.Ny.Ads_ny_meal" resultType="com.zckj.demo.bean.Ny.Ads_ny_meal">
+        select * from ads_ny_meal
+    </select>
+
+    <!--新装用户月柱状图 -->
+    <select id="Select_bodyFoot" parameterType="com.zckj.demo.bean.Ny.Ads_ny_sum_number" resultType="com.zckj.demo.bean.Ny.Ads_ny_sum_number">
+        select *  from  ads_ny_sum_number
+        where date_type = '月' and rq = #{rq} and
+        <if test="org_typ_cd == 5">
+            org_no like '${org_no}%' and org_typ_cd = '04'
+        </if>
+        <if test="org_typ_cd == 7">
+            org_no like '${org_no}%' and org_typ_cd = '05'
+        </if>
+        <if test="org_typ_cd == 9">
+            org_no = #{org_no}
+        </if>
+    </select>
+
+    <!--每日短信发送排名前3的供电所信息-->
+    <select id="Select_rightFoot" parameterType="com.zckj.demo.bean.Ny.Ads_ny_sum_number" resultType="com.zckj.demo.bean.Ny.Ads_ny_sum_number">
+        select * from  (
+        select *  from  ads_ny_sum_number
+        where date_type = '日' and rq = #{rq} and message_num is not null and
+        <if test="org_typ_cd == 5">
+            org_no like '${org_no}%' and org_typ_cd = '04'
+        </if>
+        <if test="org_typ_cd == 7">
+            org_no like '${org_no}%' and org_typ_cd = '05'
+        </if>
+        <if test="org_typ_cd == 9">
+            org_no = #{org_no}
+        </if>
+        order by message_num desc)
+        where rownum &lt; 4
+    </select>
+
+
+    <!--套餐详情页面 城乡类别-->
+    <select id="Select_taoCan_gAL_urban" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+       select urban_rural_typ_nm from ads_ny_busi_app_d where urban_rural_typ_nm !=' '
+       group by urban_rural_typ_nm
+    </select>
+
+    <!--套餐详情页面 用户分类-->
+    <select id="Select_taoCan_gAL_cons" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+       select cons_typ_nm,cons_typ from ads_ny_busi_app_d  where cons_typ_nm !=' '
+       group by cons_typ_nm,cons_typ order by cons_typ
+    </select>
+
+    <!--套餐详情页面  用电类别-->
+    <select id="Select_taoCan_gAL_elec" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+        select elec_typ_nm,elec_typ from ads_ny_busi_app_d where elec_typ_nm !=' '
+        group by elec_typ_nm ,elec_typ order by elec_typ
+    </select>
+
+    <!--套餐详情页面  查询-->
+    <select id="Select_taoCan_All" parameterType="com.zckj.demo.bean.Ny.Ads_ny_meal" resultType="com.zckj.demo.bean.Ny.Ads_ny_meal">
+        select * from ads_ny_meal where 1=1
+        <if test="count_type !='' and count_type != null">
+            and count_type = #{count_type}
+        </if>
+        <if test="urban_rural_typ_nm != '' and urban_rural_typ_nm != null ">
+            and urban_rural_typ_nm = #{urban_rural_typ_nm}
+        </if>
+        <if test="cons_typ_nm != '' and cons_typ_nm != null ">
+            and cons_typ_nm = #{cons_typ_nm}
+        </if>
+        <if test="elec_typ_nm != '' and elec_typ_nm != null">
+            and elec_typ_nm = #{elec_typ_nm}
+        </if>
+        <if test="indust_typ_nm != '' and indust_typ_nm != null">
+            and indust_typ_nm = #{indust_typ_nm}
+        </if>
+        <if test="meal_no != '' and meal_no != null">
+            and meal_no = #{meal_no}
+        </if>
+        <if test="meal_type != '' and meal_type != null">
+            and meal_type = #{meal_type}
+        </if>
+        <if test="dydj != '' and dydj != null">
+            and dydj = #{dydj}
+        </if>
+        <if test="run_cap != '' and run_cap != null">
+            and run_cap = #{run_cap}
+        </if>
+        <if test="state != '' and state != null">
+            and state = #{state}
+        </if>
+        order by meal_no
+    </select>
+
+    <!--套餐详情页面  修改-->
+    <select id="Select_taoCan_Alter" parameterType="com.zckj.demo.bean.Ny.Ads_ny_meal" resultType="com.zckj.demo.bean.Ny.Ads_ny_meal">
+        update ads_ny_meal set
+        content = #{content}
+        where meal_no = #{meal_no} and meal_type = #{meal_type}
+    </select>
+
+    <!--套餐详情页面 删除-->
+    <delete id="Select_taoCan_Delete" parameterType="com.zckj.demo.bean.Ny.Ads_ny_meal">
+        delete from ads_ny_meal where meal_no = #{meal_no} and meal_type = #{meal_type} and count_type = #{count_type}
+    </delete>
+
+    <!--套餐详情页面  插入-->
+    <insert id="InsertTaocan" parameterType="com.zckj.demo.bean.Ny.Ads_ny_meal" >
+         insert into ads_ny_meal (
+         meal_no
+         <if test="meal_type !=null and meal_type !='' ">
+             ,meal_type
+         </if>
+        <if test="dydj != null and dydj != ''">
+            ,dydj
+        </if>
+        <if test="count_type != null and count_type != '' ">
+            ,count_type
+        </if>
+        <if test="urban_rural_typ_nm != null and urban_rural_typ_nm != ''">
+            ,urban_rural_typ_nm
+        </if>
+        <if test="cons_typ_nm != null and cons_typ_nm != '' ">
+            ,cons_typ_nm
+        </if>
+        <if test="elec_typ_nm != null and elec_typ_nm != '' ">
+            ,elec_typ_nm
+        </if>
+        <if test="indust_typ_nm != null and indust_typ_nm != '' ">
+            ,indust_typ_nm
+        </if>
+        <if test="run_cap != null and run_cap != '' ">
+            ,run_cap
+        </if>
+        <if test="state != null and state != '' ">
+            ,state
+        </if>
+        <if test="content != null and content != '' ">
+            ,content
+        </if>
+         )
+         values
+         (
+        #{meal_no}
+        <if test="meal_type !=null and meal_type !='' ">
+            ,#{meal_type}
+        </if>
+        <if test="dydj != null and dydj != ''">
+            ,#{dydj}
+        </if>
+        <if test="count_type != null and count_type != '' ">
+            ,#{count_type}
+        </if>
+        <if test="urban_rural_typ_nm != null and urban_rural_typ_nm != ''">
+            ,#{urban_rural_typ_nm}
+        </if>
+        <if test="cons_typ_nm != null and cons_typ_nm != '' ">
+            ,#{cons_typ_nm}
+        </if>
+        <if test="elec_typ_nm != null and elec_typ_nm != '' ">
+            ,#{elec_typ_nm}
+        </if>
+        <if test="indust_typ_nm != null and indust_typ_nm != '' ">
+            ,#{indust_typ_nm}
+        </if>
+        <if test="run_cap != null and run_cap != '' ">
+            ,#{run_cap}
+        </if>
+        <if test="state != null and state != '' ">
+            ,#{state}
+        </if>
+        <if test="content != null and content != '' ">
+            ,#{content}
+        </if>
+         )
+    </insert>
+
+    <!--套餐详情页面 导入-->
+    <insert id="ads_uploadInsert" parameterType="com.zckj.demo.bean.Ny.Ads_ny_meal">
+        begin
+        <foreach collection="list" item="item" index="index">
+            insert into ads_ny_meal (meal_no,meal_type,dydj,count_type,urban_rural_typ_nm,cons_typ_nm,elec_typ_nm,indust_typ_nm,run_cap,state,content) values
+            (
+            #{item.meal_no,jdbcType=VARCHAR},
+            #{item.meal_type,jdbcType=VARCHAR},
+            #{item.dydj,jdbcType=VARCHAR},
+            #{item.count_type,jdbcType=VARCHAR},
+            #{item.urban_rural_typ_nm,jdbcType=VARCHAR},
+            #{item.cons_typ_nm,jdbcType=VARCHAR},
+            #{item.elec_typ_nm,jdbcType=VARCHAR},
+            #{item.indust_typ_nm,jdbcType=VARCHAR},
+            #{item.run_cap,jdbcType=VARCHAR},
+            #{item.state,jdbcType=VARCHAR},
+            #{item.content,jdbcType=VARCHAR}
+            );
+        </foreach>
+        end;
+    </insert>
+
+
+    <!--存量用户查询 -->
+    <select id="Select_shichang" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+        select t.*,u.userNews_num from
+        (select org_no,org_nm,free_app_no,cons_no,cons_nm,fst_tel,elec_addr,elec_typ_dsc,free_disc_dsc,run_cap,cntrct_cap
+        from ads_ny_cons_d
+        where 1=1
+        <if test="org_no != '' ">
+            and org_no like '${org_no}%'
+        </if>
+        <if test="elec_typ_nm != '' and elec_typ_nm != null ">
+            and  elec_typ_dsc = #{elec_typ_nm}
+        </if>
+        <if test="indust_typ_nm != '' and indust_typ_nm != null">
+            <choose>
+                <when test='indust_typ_nm_t == "一" or indust_typ_nm_t == "二" or indust_typ_nm_t == "三" or indust_typ_nm_t == "四" or indust_typ_nm_t == "五" or indust_typ_nm_t == "六" or indust_typ_nm_t == "七" or indust_typ_nm_t == "八" or indust_typ_nm_t == "九" or indust_typ_nm_t == "十" or indust_typ_nm_t == "十一" '>
+                    and indust_typ_dsc_1lvl = #{indust_typ_nm}
+                </when>
+                <otherwise>
+                    and indust_typ_dsc_2lvl = #{indust_typ_nm}
+                </otherwise>
+            </choose>
+        </if>
+        ) t
+        left join
+        (select userNews_user_no,count(userNews_user_no) userNews_num from ads_ny_userNews
+        group by userNews_user_no) u
+        on u.userNews_user_no = t.cons_no
+        order by t.org_no ,t.cons_no
+    </select>
+
+    <!--新装用户查询-->
+    <select id="Select_yekuang" parameterType="com.zckj.demo.bean.Ny.User_info" resultType="com.zckj.demo.bean.Ny.User_info">
+        select t.*,u.userNews_num from
+        (select c.org_no,b.org_nm,b.app_no,b.cons_no,b.cons_nm,c.fst_tel,b.elec_addr,b.elec_typ_nm,b.busi_app_typ_nm,b.feed_ps_qt,b.sp_qt,b.free_disc_dsc,b.accept_tm   from  ads_ny_busi_app_d b
+        left join ads_ny_cons_d c on c.cons_no = b.cons_no
+        where 1=1
+        <if test="org_no != ''">
+            and c.org_no like '${org_no}%'
+        </if>
+        <if test="busi_app_typ_nm != '' and busi_app_typ_nm != null ">
+            and b.busi_app_typ_nm = #{busi_app_typ_nm}
+        </if>
+        <if test="elec_typ_nm != '' and elec_typ_nm != null ">
+            and  b.elec_typ_nm = #{elec_typ_nm}
+        </if>
+        <if test="indust_typ_nm != '' and indust_typ_nm != null">
+            <choose>
+                <when test='indust_typ_nm_t == "一" or indust_typ_nm_t == "二" or indust_typ_nm_t == "三" or indust_typ_nm_t == "四" or indust_typ_nm_t == "五" or indust_typ_nm_t == "六" or indust_typ_nm_t == "七" or indust_typ_nm_t == "八" or indust_typ_nm_t == "九" or indust_typ_nm_t == "十" or indust_typ_nm_t == "十一" '>
+                    and c.indust_typ_dsc_1lvl = #{indust_typ_nm}
+                </when>
+                <otherwise>
+                    and c.indust_typ_dsc_2lvl = #{indust_typ_nm}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="stDate != '' and stDate != null and edDate !='' and edDate != null ">
+            and  b.accept_tm  between  to_date(#{edDate},'yyyy-mm-dd hh24:mi:ss')  and to_date(#{stDate},'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        ) t
+        left join
+        (select userNews_user_no,count(userNews_user_no) userNews_num from ads_ny_userNews
+        group by userNews_user_no) u
+        on u.userNews_user_no = t.cons_no
+        order by t.org_no ,t.cons_no
+    </select>
+
+    <!--短信查找最大id-->
+    <select id="selectMessage_id" resultType="com.zckj.demo.bean.Ny.ads_ny_message">
+        select max(message_no) message_no from ads_ny_message
+    </select>
+
+    <!--短信插入-->
+    <insert id="InsertMessage" parameterType="com.zckj.demo.bean.Ny.ads_ny_message">
+       insert into ads_ny_message (
+        message_no
+        <if test="message_content != null and message_content != '' ">
+            ,message_content
+        </if>
+        <if test="message_num !=null and message_num != '' ">
+            ,message_num
+        </if>
+        <if test="message_time != null and message_time != '' ">
+            ,message_time
+        </if>
+        <if test="message_cons_nm != null and message_cons_nm !=''">
+            ,message_cons_nm
+        </if>
+        <if test="message_org_nm != null and message_org_nm !=''">
+            ,message_org_nm
+        </if>
+        <if test="message_org_no != null and message_org_no != ''">
+            ,message_org_no
+        </if>
+        <if test="message_seccuse != null and message_seccuse !=''">
+            ,message_seccuse
+        </if>
+        <if test="message_rq != null and message_rq != ''">
+            ,message_rq
+        </if>
+        <if test="message_phone !=null and message_phone != '' ">
+            ,message_phone
+        </if>
+        )
+        values (
+        #{message_no}
+        <if test="message_content != null and message_content != ''">
+            ,#{message_content}
+        </if>
+        <if test="message_num !=null and message_num != '' ">
+            ,#{message_num}
+        </if>
+        <if test="message_time != null and message_time != '' ">
+            ,to_timestamp(#{message_time},'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="message_cons_nm != null and message_cons_nm !='' ">
+            ,#{message_cons_nm}
+        </if>
+        <if test="message_org_nm != null and message_org_nm !='' ">
+            ,#{message_org_nm}
+        </if>
+        <if test="message_org_no != null and message_org_no != '' ">
+            ,#{message_org_no}
+        </if>
+        <if test="message_seccuse != null and message_seccuse !='' ">
+            ,#{message_seccuse}
+        </if>
+        <if test="message_rq != null and message_rq != '' ">
+            ,#{message_rq}
+        </if>
+        <if test="message_phone !=null and message_phone != '' ">
+            ,#{message_phone}
+        </if>
+        )
+    </insert>
+
+
+    <!--短信用户插入-->
+    <insert id="InsertUserNews" parameterType="com.zckj.demo.bean.Ny.ads_ny_userNews">
+    insert into ads_ny_userNews (
+    userNews_message_no,userNews_meal_no,userNews_user_no
+    )
+    values (
+    #{userNews_message_no},#{userNews_meal_no},#{userNews_user_no}
+    )
+    </insert>
+
+    <!--短信用户详细  查询  新增-->
+    <select id="Select_duanxin_yk" resultType="com.zckj.demo.bean.Ny.User_info">
+        select a.meal_type,c.cons_nm,m.*,u.* from ads_ny_message m
+        left join ads_ny_usernews u
+        on m.message_no = u.usernews_message_no
+        left join ads_ny_busi_app_d c
+        on c.cons_no = u.usernews_user_no
+        left join ads_ny_meal a
+       on a.meal_no = u.usernews_meal_no
+       where c.cons_no = #{cons_no}
+    </select>
+
+    <!--短信用户详细  查询  存量-->
+    <select id="Select_duanxin_sc" resultType="com.zckj.demo.bean.Ny.User_info">
+        select a.meal_type,c.cons_nm,m.*,u.* from ads_ny_message m
+        left join ads_ny_usernews u
+        on m.message_no = u.usernews_message_no
+        left join ads_ny_cons_d c
+        on c.cons_no = u.usernews_user_no
+        left join ads_ny_meal a
+        on a.meal_no = u.usernews_meal_no
+        where c.cons_no = #{cons_no}
+    </select>
+
+</mapper>
