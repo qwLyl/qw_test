@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+    <script th:src="@{/js/vue.js}"></script>
+    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/axios.min.js}"></script>
+    <script th:src="@{/js/public.js}"></script>
+
+</head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+<style>
+    .el-header, .el-footer {
+        background-color: #B3C0D1;
+        background-image: linear-gradient(#28b7b7e8, #094e4e);
+        color: #333;
+        text-align: left;
+        line-height: 80px;
+        padding: 0 5px;
+    }
+
+    .el-col-8 {
+        height: 80px;
+        float: left;
+        position: absolute;
+    }
+
+    .el-aside {
+        background-color: #D3DCE6;
+        color: #333;
+        text-align: center;
+        line-height: 200px;
+    }
+
+    .el-main {
+        background-color: #E9EEF3;
+        color: #333;
+        text-align: center;
+        line-height: 160px;
+    }
+
+    body > .el-container {
+        margin-bottom: 40px;
+    }
+
+    .el-container:nth-child(5) .el-aside,
+    .el-container:nth-child(6) .el-aside {
+        line-height: 260px;
+    }
+
+    .el-container:nth-child(7) .el-aside {
+        line-height: 320px;
+    }
+
+    .font {
+        /* margin-top: 6%; */
+        line-height: 55px;
+        font-size: 1.5rem;
+        color: #1b7f7f;
+        font-weight: 800;
+        text-align: left;
+        text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+        /* border-bottom: 2px solid #fFF; */
+    }
+
+    .font1 {
+        /* margin-top: 6%; */
+        line-height: 28px;
+        font-size: 1.0rem;
+        color: #fff;
+        text-align: left;
+        text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 0 1px #fff, 0 0 1px #fff;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(
+                to right,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(35, 198, 200, 0.2) 10%,
+                rgba(35, 198, 200, 0.3) 20%,
+                rgba(35, 198, 200, 0.4) 30%,
+                rgba(35, 198, 200, 0.5) 40%,
+                rgba(35, 198, 200, 0.8) 50%,
+                rgba(35, 198, 200, 0.5) 60%,
+                rgba(35, 198, 200, 0.4) 70%,
+                rgba(35, 198, 200, 0.3) 80%,
+                rgba(35, 198, 200, 0.2) 90%,
+                rgba(0, 0, 0, 0) 100%)
+    }
+
+
+    .el-button--primary {
+        padding: 8px 10px;
+        color: #FFF;
+        background-color: #0f5e5e66;
+        border-color: rgba(15, 94, 94, 0);
+        border: 1px solid #0f5e5e66;
+    }
+
+    /*.el-button--primary:focus, .el-button--primary:hover , .el-button--primary:active{
+        background: #1c7273;
+        border-color: #66b1ff;
+        color: #FFF;
+    }*/
+    .el-button--primary:focus {
+        padding: 8px 10px;
+        color: #FFF;
+        background: #258688;
+        border-color: rgba(15, 94, 94, 0);
+        border: 0px solid #DCDFE6;
+        /*font-size: 12px;*/
+    }
+
+    /*.el-button--primary:focus, .el-button--primary:hover , .el-button--primary:active{*/
+    .el-button--primary:hover {
+        background: #1c7273;
+        border-color: #228a8b;
+        color: #FFF;
+        border-radius: 1px;
+        border-width: 1px;
+    }
+
+    .el-button--primary:active {
+        /*background: #218889;*/
+        border-color: #105f5f;
+        background: #258688;
+        color: #FFF;
+    }
+
+    .el-button i {
+        color: #dae672;
+    }
+
+    .el-button i {
+        color: #dae672;
+    }
+
+    .act {
+        background: #258688;
+        color: #FFF;
+    }
+
+
+</style>
+<body>
+<el-container id="app" style="height: 100%; width: 100%;overflow: hidden; margin: 0px;padding: 0px;position: absolute;">
+
+    <el-header style="height:80px">
+        <el-row>
+
+            <el-col :span="8" style="width: 160px;">
+                <img th:src="@{/img/gwlogo2.png}" style="margin-top: 8px;height: 60px;width: auto;">
+            </el-col>
+
+
+            <el-col :span="8" style="width:400px;margin-left: 10px;left: 180px;">
+                <el-row style="height: 60%;">
+                    <div class="font">电力自助缴费终端运维管理</div>
+                </el-row>
+                <el-row class="jb" style="height: 40%;">
+                    <div class="font1">国网郴州供电公司</div>
+                </el-row>
+            </el-col>
+
+
+            <el-col :span="8" style="width: auto;float:right;right: 0px; left: 590px;">
+
+                <!--<el-radio-group v-model="radio2" size="small" style="position: absolute;bottom: 0px;">
+                    <el-radio-button label="首页" ></el-radio-button>
+                    <el-radio-button label="运营效率分析"></el-radio-button>
+                    <el-radio-button label="广州"></el-radio-button>
+                    <el-radio-button label="深圳"></el-radio-button>
+                </el-radio-group>-->
+
+                <!-- $event是指当前触发的是什么事件(鼠标事件,键盘事件等) -->
+                <el-button-group id="MainMenu" style="position:absolute;bottom: 2px;">
+                    <!--                    <el-button size="small" type="primary" icon="el-icon-link" id="b1"-->
+                    <!--                             >-->
+                    <!--						<a th:href="@{'/upload2'}">交易明细导入</a>-->
+
+                    <!--</el-button>-->
+                    <el-button size="small" type="primary" icon="el-icon-link" id="b2"
+                               v-on:click="openUrl('/czyj_pos/selectpossgl',$event)"> 终端档案管理
+                    </el-button>
+                    <el-button size="small" type="primary" icon="el-icon-link" id="b1"
+                               v-on:click="openUrl('/czyj_pos/upload2',$event)">交易明细导入
+                    </el-button>
+                    <el-button size="small" type="primary" icon="el-icon-link" id="b3"
+                               v-on:click="openUrl('/czyj_pos/selectposscx',$event)"> 终端档案查询
+                    </el-button>
+                    <el-button size="small" type="primary" icon="el-icon-link" id="b4"
+                               v-on:click="openUrl('/czyj_pos/selectUpload',$event)">交易明细查询
+                    </el-button>
+                    <el-button size="small" type="primary" icon="el-icon-link" id="b5"
+                               v-on:click="openUrl('/czyj_pos/selectposstj',$event)"> 缴费次数查询
+                    </el-button>
+                    <el-button size="small" type="primary" icon="el-icon-link" id="b6"
+                               v-on:click="openUrl('/czyj_pos/selectposswda',$event)"> 单位汇总
+                    </el-button>
+                </el-button-group>
+            </el-col>
+
+            <el-col :span="8" style="width:auto;float: right;right:1px;height: 60%;">
+                <el-row style="height: 100%;">
+                    <div class="el-icon-time" id="times"
+                         style="color: #ffffff;float: left;line-height: 40px;font-size: 1.0rem">
+                    </div>
+                </el-row>
+                <!--						<el-row style="height: 40%;">-->
+                <!-- <div class="font1">
+                    <i class="el-icon-user-solid">张群彪</i>
+                    <i class="el-icon-time">{{ message }}</i>
+                    </div> -->
+                <!--						</el-row>					-->
+            </el-col>
+
+
+        </el-row>
+    </el-header>
+
+
+    <el-container>
+        <!-- <el-aside width="200px">Aside</el-aside> -->
+        <el-main style="padding:0px;line-height: 100%;overflow: hidden;">
+            <iframe id="mainIframe" class="mainIframe" v-bind:src="iframeUrl" frameborder="0"
+                    style="width: 100%;height: 99.9%"></iframe>
+        </el-main>
+    </el-container>
+</el-container>
+
+
+</body>
+<script type="text/javascript">
+    //得到时间并写入div
+    function getDate() {
+        //获取当前时间
+        var date = new Date();
+        //格式化为本地时间格式
+        var date1 = date.toLocaleString();
+        //获取div
+        var div1 = document.getElementById("times");
+        //将时间写入div
+        div1.innerHTML = date1;
+    }
+
+    //使用定时器每秒向div写入当前时间
+    setInterval("getDate()", 1000);
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            radio2: '首页',
+            iframeUrl: baseurl + "/selectposscx",
+            message: '布局示例'
+        },
+        methods: {
+            openUrl: function (url, e) {
+                //alert(e.currentTarget.id);
+                //e.addClass("act")
+                //e.$refs.classList.add('act')
+                MainMenu_TopClick(e);
+                this.iframeUrl = url;
+            },
+        }
+    });
+
+    /* 		$('.MainMenu').on('click', '.MainMenu-Top', function(){
+                        //MenuClick(this);
+                        alert("ok");
+                    }); */
+    function MainMenu_TopClick(obj) {
+        //alert(obj.currentTarget.id);
+        /* $(".MainMenu-Top").removeClass("MainMenu-Top-active");
+        $(".MainMenu-Top").children('div').remove();
+        $(obj).addClass("MainMenu-Top-active"); */
+        //$("#MainMenu").children('el-button').removeClass("act");
+        //$("el-button").removeClass("act");
+        //$("#"+obj.currentTarget.id).addClass("act");
+        //obj.currentTarget.className += ' act';
+        //obj.currentTarget.classList.add('act');      //添加
+        //obj.currentTarget.classList.remove('act');   //删除
+        //document.querySelector('#MainMenu>button').currentTarget.classList.remove("act"）;
+
+
+        var d = document.getElementsByTagName("button");  //获取tag名称为div的html元素们
+        for (i = 0; i < d.length; i++)//遍历tag名称为div的html元素们
+            d[i].classList.remove('act'); // 移除已经存在的类名
+        obj.currentTarget.classList.add('act'); //
+    }
+</script>
+</html>

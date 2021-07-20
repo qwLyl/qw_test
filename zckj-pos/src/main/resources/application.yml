@@ -1,0 +1,32 @@
+
+server:
+    port: 10087
+    servlet:
+       context-path: /czyj_pos
+
+
+spring:
+   jackson:
+      date-format: yyyy-MM-dd HH:mm:ss
+      time-zone: GMT+8
+      default-property-inclusion: non_null
+   datasource:
+      url: jdbc:oracle:thin:@127.0.0.1:1521/orcl
+      username: jfgl
+      password: jfgl
+      driver-class-name: oracle.jdbc.OracleDriver
+   resources:
+      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${web.upload-path}
+   servlet:
+      multipart:
+         max-file-size: 300MB
+         max-request-size: 500MB
+   thymeleaf:
+      cache: false # 开发时关闭缓存,不然没法看到实时页面
+
+mybatis:
+   mapper-locations: classpath*:mapper/**/*.xml
+   type-aliases-package: com.zckj.demo.bean
+   configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+

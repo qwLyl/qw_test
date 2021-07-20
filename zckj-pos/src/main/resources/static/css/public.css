@@ -1,0 +1,198 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+
+.window .window-header {
+    background: linear-gradient(to bottom,#F8F8F8 0,#dedcdc 100%);
+    padding: 0px 0px 6px 0px;
+}
+/* ----缂佹劖銇炵紞瀣暜閸愩劎婀�------- */
+.main-left {
+   float: left;
+    position: absolute;
+    top: 0px;
+    left: 0;
+    bottom: 0;
+    border: 1px solid #008080;
+}
+.main-right {
+	position: absolute;
+    top: 0px;
+    right: 0;
+    bottom: 0;
+    float: right;
+    border: 1px solid #008080;
+}
+.main-content {
+	float: left;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid #008080;
+}
+/* ----閻庡湱鎳撳▍鎺戭浖閿燂拷------- */
+.ibox {
+	position: absolute;
+    float: left;
+    min-height: 1px;
+    padding-right: 0px;
+    padding-left: 0px;
+    top: 0px;
+    bottom: 0;
+    border: 1px solid #FF0000;
+}
+.box_left {
+    
+    height: 100%;
+    margin-left: 0.0%;
+    float: left;
+}
+.box_right {
+    height: 100%;
+    margin-left: 0.0%;
+    float: right;
+}
+.box {
+    margin: 5px;
+    box-sizing: border-box;
+    position: relative;
+    border-width: 0px;
+    border-style: solid;
+    border-color: rgb(12, 175, 175);
+    border-image: initial;
+    border-radius: 2px;
+    /* box-shadow: 0 0 10px #0cafaf; */
+    background-color: #51a4a7;
+}
+.ibox-title-text{
+	text-align: center;
+    color: #008282;
+    font-size: 28px;
+    text-shadow: 1px 1px 1px #CCCCCC;
+    font-weight: 800;
+    
+}
+
+/* ----濡炪倕鐖奸崕鏉戭啅閵夈儱寰旈柡宥忔嫹------- */
+.TopBarDiv{
+	border: 0px solid #D61A1A;
+    float: left;
+    position: absolute;
+    width: 100%;
+    height: 38px;
+}
+.TopBar {
+
+    /*border-bottom: 0px solid #4a7797;
+    float: left;
+    position: absolute;
+    height: 40px;*/
+}
+.TopBar .title{
+    padding: 0 20 0 10;
+    height: 40px;
+    color: #008282;
+    font-size: 18px;
+    text-shadow: 1px 1px 1px #CCCCCC;
+    font-weight: 800;
+}
+.TopBar .lab {
+    height: 40px;
+    /*min-width: 70px;*/
+    text-align: right;
+}
+.TopBar label {
+    padding-top: 2px;
+    margin-bottom: 2px;
+    text-align: right;
+    font-family: 'Open Sans';
+    font-size: 13px;
+    color: #008282;
+    font-weight: bold;
+    /* min-width: 70px; */
+}
+.TopBar .txt {
+    height: 40px;
+    padding-right: 10px;
+}
+.TopBar select {
+    border-radius: 3px;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #4a7797;
+    padding: 1px 5px 1px;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+}
+.TopBar input {
+    border-radius: 3px;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #4a7797;
+    padding: 2px 5px 2px;
+    font-size: 13px;
+    font-family: inherit;
+    /* -webkit-box-shadow: none!important; */
+    /* box-shadow: none!important; */
+    /* -webkit-transition-duration: .1s; */
+    /* transition-duration: .1s; */
+    width: 100%;
+}
+/* ----子窗体常用样式------- */
+/* .tableX为要显示滚动条的类名 */
+    /* 显示横向滚动条 */
+    .tableX .el-table--scrollable-x .el-table__body-wrapper {
+      padding: 0 0 5px 0;
+      margin: 0 0 5px 0;
+      overflow-x: auto;
+    }
+    /* 滚动条的滑块样式 */
+    .tableX .el-table .el-table__body-wrapper::-webkit-scrollbar-thumb {
+      background-color: #ccc !important;
+      border-radius: 30px !important;
+    }
+    /* 去除右侧固定定位阴影多出来的像素 */
+    .tableX .el-table__fixed-right{
+      height: calc(100% - 27px) !important;
+    }   
+		.el-table--border th{
+			background-color: #f1efef;
+		}
+		.el-button {
+			color: #2ea7a8;
+			padding: 0px 20px;
+			}
+		.el-button:focus, .el-button:hover {
+		    color: #2fa9aa;
+		    border-color: #a7dada;
+		    background-color: #ecf5ff;
+		}
+		.el-button:active {
+		    color: #2fabac;
+		    border-color: #208788;
+		    outline: 0;
+		}
+			.el-form-item {
+				margin-top: 10px;
+				margin-bottom: 10px;
+			}
+		.el-button,.el-input,.el-input__inner{
+		  height: 35px;
+		  line-height: 35px;
+		}
+		.el-table td, .el-table th {
+		    padding: 6px 0;
+				}
+		.el-table--border th {
+		    background-image: linear-gradient(#fbf8f8, #f1efef);
+		}
+		.el-table thead {
+		    color: #606266;
+		    font-weight: 500;
+		}	
+
+

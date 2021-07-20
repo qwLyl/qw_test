@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zckj.demo.dao.Jfzd.JfzdDao">
+    <!--查询县级单位-->
+    <select id="selectOrg" resultType="com.zckj.demo.bean.Jfzd.Org_gy">
+        select * from org_gy  where grade = #{grade} order by orgno
+    </select>
+
+    <!--查询县级下属单位-->
+    <select id="selectOrgXj" resultType="com.zckj.demo.bean.Jfzd.Org_gy" >
+        select *  from org_gy  where orgno like '${orgno}%' order by orgno
+    </select>
+
+    <resultMap type="com.zckj.demo.bean.Jfzd.Pos_dr_upload" id="Pos_dr_uploadDao">
+        <result property="qsrq" column="qsrq" jdbcType="VARCHAR"/>
+        <result property="qsshh" column="qsshh" jdbcType="VARCHAR"/>
+        <result property="qszdh" column="qszdh" jdbcType="VARCHAR"/>
+        <result property="shm" column="shm" jdbcType="VARCHAR"/>
+        <result property="sbshh" column="sbshh" jdbcType="VARCHAR"/>
+        <result property="posid" column="posid" jdbcType="VARCHAR"/>
+        <result property="jysj" column="jysj" jdbcType="VARCHAR"/>
+        <result property="kh" column="kh" jdbcType="VARCHAR"/>
+        <result property="money" column="money" jdbcType="VARCHAR"/>
+        <result property="createtime" column="createtime" jdbcType="DATE"/>
+    </resultMap>
+
+    <!-- 按清算月时间查询 对应selectUpload.html-->
+    <select id="selectupload" resultType="com.zckj.demo.bean.Jfzd.Pos_dr_upload">
+        select * from POS_DR where month=#{month}
+    </select>
+
+    <select id="selectuploadFy" resultType="com.zckj.demo.bean.Jfzd.Pos_dr_upload">
+        select * from POS_DR where month=#{month}
+    </select>
+
+    <!-- 删除当月重复数据 -->
+    <!--
+        to_date : sql语句中关于时间的比较，可以使用to_date()函数
+        原因是SQL中不区分大小写，MM和mm被认为是相同的格式代码，所以Oracle的SQL采用了mi代替分钟
+    -->
+    <delete id="deleteByDate">
+        delete from POS_DR t where t.createtime &lt;= to_date(#{createtime}, 'yyyy/mm/dd,hh24:mi:ss') and substr(t.qsrq,1,6)=#{qsrq}
+    </delete>
+
+    <!--  根据清算日期，查询数据库中当月最近一条上传时间   -->
+    <!--  max 获取一列中最大值 -->
+    <select id="selectCreateTime" resultType="java.util.Date">
+        select max(t.createtime) from POS_DR t where substr(t.qsrq,1,6)=#{qsrq}
+    </select>
+
+    <!--批量导入excel-->
+    <insert id="insertBatch" parameterType="com.zckj.demo.bean.Jfzd.Pos_dr_upload">
+        begin
+        <foreach collection="list" item="item" index="index">
+            insert into pos_dr (qsrq,qsshh,qszdh,shm,sbshh,posid,lsh,jysj,kh,money,yhh,orgno, orgname, month, createtime) values
+            (
+            #{item.qsrq,jdbcType=VARCHAR},
+            #{item.qsshh,jdbcType=VARCHAR},
+            #{item.qszdh,jdbcType=VARCHAR},
+            #{item.shm,jdbcType=VARCHAR},
+            #{item.sbshh,jdbcType=VARCHAR},
+            #{item.posid,jdbcType=VARCHAR},
+            #{item.lsh,jdbcType=VARCHAR},
+            #{item.jysj,jdbcType=VARCHAR},
+            #{item.kh,jdbcType=VARCHAR},
+            #{item.money,jdbcType=VARCHAR},
+            #{item.yhh,jdbcType=VARCHAR},
+            (select  i.orgno from pos_info i where i.posid=#{item.posid,jdbcType=VARCHAR} and rownum =1),
+            (select  i.orgname from pos_info i where i.posid=#{item.posid,jdbcType=VARCHAR} and rownum = 1),
+            substr(#{item.qsrq,jdbcType=VARCHAR},1,6),
+            sysdate
+            );
+        </foreach>
+        end;
+    </insert>
+
+    <insert id="insert" parameterType="com.zckj.demo.bean.Jfzd.Pos_dr_upload">
+        insert into pos_dr(qsrq,qsshh,qszdh,shm,sbshh,posid,lsh,jysj,kh,money,yhh)
+        values(#{qsrq},#{qsshh},#{qszdh},#{shm},
+                #{sbshh},#{posid},#{lsh},#{jysj},#{kh},#{money},#{yhh})
+    </insert>
+
+    <select id="selectRq" resultType="com.zckj.demo.bean.Jfzd.Pos_dr">
+        select month,orgno,orgname,posid,count(*) count ,sum(money) money from POS_DR
+        where month=#{month} and orgno is null group by month,orgno,orgname,posid order by month,orgno,posid
+    </select>
+
+    <select id="selectRqXgs" resultType="com.zckj.demo.bean.Jfzd.Pos_dr">
+        select b.org_no orgno,b.org_nm orgname,a.count,a.money from (select substr(orgno,0,7) orgno,count(*) count,sum(money) money from POS_DR
+        where month=#{month} group by substr(orgno,0,7)) a,ads_cz_xmz_org b where a.orgno=b.org_no order by org_no
+    </select>
+
+    <select id="selectRqGds" resultType="com.zckj.demo.bean.Jfzd.Pos_dr">
+        select b.org_no orgno,b.org_nm orgname,a.count,a.money from (select  orgno,count(*) count,sum(money) money from POS_DR
+        where month=#{month} group by orgno) a,ads_cz_xmz_org b where a.orgno=b.org_no order by org_no
+    </select>
+
+    <!--按县级以下,possid号查询-->
+    <select id="selectPos" resultType="com.zckj.demo.bean.Jfzd.Pos_info">
+        select * from pos_info where orgno = #{orgno} and posid = #{posid}
+    </select>
+
+    <!--查询市级所有供电所-->
+    <select id="selectSj" resultType="com.zckj.demo.bean.Jfzd.Pos_info">
+        select * from pos_info where orgno = #{orgno}
+    </select>
+
+    <!--查询 县级下的所有供电所-->
+    <select id="selectXj" resultType="com.zckj.demo.bean.Jfzd.Pos_info">
+        select * from pos_info where orgno like '${orgno}%' order by orgno
+    </select>
+
+    <!--添加语句-->
+    <insert id="insert_possgl" parameterType="com.zckj.demo.bean.Jfzd.Pos_info">
+        insert into pos_info (orgno,orgname,posid
+        <if test="code != '' and code != null">
+            ,code
+        </if>
+        <if test="orderid != '' and orderid != null">
+            ,orderid
+        </if>
+        <if test="gprs != '' and gprs != null">
+            ,gprs
+        </if>
+        <if test="type != '' and type != null">
+            ,type
+        </if>
+        <if test="address != '' and address != null">
+            ,address
+        </if>
+        <if test="installdate != '' and installdate != null">
+            ,installdate
+        </if>
+        <if test="village != '' and village != null">
+            ,village
+        </if>
+        <if test="trans != '' and trans != null">
+            ,trans
+        </if>
+        <if test="workerid != '' and workerid != null">
+            ,workerid
+        </if>
+        <if test="workername != '' and workername != null">
+            ,workername
+        </if>
+        <if test="state != '' and state != null">
+            ,state
+        </if>
+        <if test="note != '' and note != null">
+            ,note
+        </if>
+        <if test="jf_count != '' and jf_count != null">
+            ,jf_count
+        </if>
+        <if test="money != '' and money != null">
+            ,money
+        </if>
+        <if test="telephone != '' and telephone != null">
+            ,telephone
+        </if>
+       )
+        values(
+        #{orgno},#{orgname},#{posid}
+        <if test="code != '' and code != null">
+            ,#{code}
+        </if>
+        <if test="orderid != '' and orderid != null">
+            ,#{orderid}
+        </if>
+        <if test="gprs != '' and gprs != null">
+            ,#{gprs}
+        </if>
+        <if test="type != '' and type != null">
+            ,#{type}
+        </if>
+        <if test="address != '' and address != null">
+            ,#{address}
+        </if>
+        <if test="installdate != '' and installdate != null">
+            ,#{installdate}
+        </if>
+        <if test="village != '' and village != null">
+            ,#{village}
+        </if>
+        <if test="trans != '' and trans != null">
+            ,#{trans}
+        </if>
+        <if test="workerid != '' and workerid != null">
+            ,#{workerid}
+        </if>
+        <if test="workername != '' and workername != null">
+            ,#{workername}
+        </if>
+        <if test="state != '' and state != null">
+            ,#{state}
+        </if>
+        <if test="note != '' and note != null">
+            ,#{note}
+        </if>
+        <if test="jf_count != '' and jf_count != null">
+            ,#{jf_count}
+        </if>
+        <if test="money != '' and money != null">
+            ,#{money}
+        </if>
+        <if test="telephone != '' and telephone != null">
+            ,#{telephone}
+        </if>
+        )
+    </insert>
+
+    <!--修改语句-->
+    <update id="updata" parameterType="com.zckj.demo.bean.Jfzd.Pos_info">
+         update pos_info set orgno=#{orgno},
+         orgname=#{orgname},
+         code=#{code},
+         posid=#{posid},
+         orderid=#{orderid},
+         gprs=#{gprs},
+         type=#{type},
+         address=#{address},
+         installdate=#{installdate},
+         village=#{village},
+         trans=#{trans},
+         workerid=#{workerid},
+         workername=#{workername},
+         state=#{state},
+         note=#{note},
+         jf_count=#{jf_count},
+         money=#{money},
+         telephone=#{telephone}
+         where orgno = #{orgno} and posid=#{posid}
+    </update>
+
+    <select id="selectTj" resultType="com.zckj.demo.bean.Jfzd.Pos_tj">
+        select b.org_nm countyname,a.* from (select orgno,orgname,posid,count(*) count,sum(money) money from POS_DR
+        where month=#{month} group by orgno,orgname,posid order by orgno,posid) a, (select * from ads_cz_xmz_org t where org_typ_cd='04') b where substr(a.orgno,1,7)=b.org_no
+    </select>
+</mapper>

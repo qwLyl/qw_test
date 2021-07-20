@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+    <script th:src="@{/js/vue.js}"></script>
+    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/axios.min.js}"></script>
+    <script th:src="@{/js/public.js}"></script>
+    <script lang="javascript" th:src="@{/js/xlsx.full.min.js}"></script>
+    <script th:src="@{/js/FileSaver.min.js}" charset="utf-8"></script>
+</head>
+
+<style>
+    body { margin: 0; padding: 0; }
+</style>
+
+<body>
+<div id="tableView" class="main-content" style="right:0px;left:0px;">
+    <div  class="ibox-title" style="float:left;position: absolute; width:100%;height:60px;">
+        <!--列表顶部搜索和工具条-->
+        <el-row>
+            <el-form :inline="true" :model="searchForm" class="demo-form-inline" label-width="100px">
+                <el-form-item>
+                    <i class="el-icon-info"
+                       style="font-size: 1.2rem;color: #1b7f7f;font-weight: 800;">
+                        缴费次数查询
+                    </i>
+                </el-form-item>
+                <el-form-item style="padding-left: 50px;" label="日期：">
+                    <el-date-picker
+                            v-model="searchForm.month"
+                            value-format="yyyy-MM"
+                            type="month"
+                            placeholder="选择日期">
+                    </el-date-picker>
+                </el-form-item>
+
+                <el-form-item style="padding-left: 300px;">
+                    <el-button  icon="el-icon-search" @click="searchClick" >
+                        查询
+                    </el-button>
+                </el-form-item>
+
+                <el-form-item style="padding-left: 30px;">
+                    <el-button icon="el-icon-date" @click="Excel">
+                        导出
+                    </el-button>
+                </el-form-item>
+
+            </el-form>
+        </el-row>
+    </div>
+
+    <!--
+    overflow-y:   hidden 裁剪内容 - 不提供滚动机制
+                   auto 如果溢出框，则应该提供滚动机制
+    -->
+
+    <div class="v-content" style="background-color:#fff;float: left;overflow-y:hidden;
+overflow-x: auto;position:absolute; width: 100%;top:67px;bottom: 0px;">
+        <!--列表-->
+        <el-row >
+            <el-table id="exportable" ref="table" :height="tableHeight"  highlight-current-row  v-loading="loading" :data="tableData" border style="width:100%" >
+
+                <el-table-column label="序号" type="index" align="center" show-overflow-tooltip width="100px">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="orgno" label="供电编号" width="200px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="orgname" label="供电单位" width="220px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="countyname" label="县公司名" width="220px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="posid" label="终端号" width="220px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="count" label="缴费次数" width="200px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="money" label="缴费总额"  align="center">
+                </el-table-column>
+            </el-table>
+        </el-row>
+    </div>
+</div>
+</body>
+
+<script type="text/javascript">
+
+    var tableView = new Vue({
+        el: '#tableView',
+        data: {
+            loading:'',
+            url: '',
+            //列表数据
+            tableData:[],
+            //显示加载中样式
+            loading: false,
+            //搜索表单
+            searchForm: {
+                month:''
+            },
+            tableHeight: 470,
+
+        },
+        mounted:function () {
+            this.getDate();
+
+            this.$nextTick(() => {
+                this.setTableHeight();
+            // 监听窗口大小变化
+            window.onresize = () => {
+                this.setTableHeight();
+            }
+        })
+        },
+        beforeDestroy:function () {
+            // 由于window.onresize是全局事件，在其他页面改变界面时也会执行，这样可能会出现问题，需要在
+            //离开这个界面时注销window.onresize事件
+            window.onresize = null
+        },
+        methods:{
+
+            getDate:function(){
+                //获取当前时间
+                var time = new Date();
+                time = time.toISOString().substring(0,7);
+                this.searchForm.month = time;
+            },
+
+            // 窗口大小
+            setTableHeight:function () {
+                this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop -60;
+            },
+            //查询语句
+            searchClick:function () {
+                var _this=this;
+                var month = _this.searchForm.month;
+                if (month == null || month == ''){
+                    this.$message({
+                        showClose: true,
+                        message: '请选择日期',
+                        type: 'warning'
+                    });                } else {
+                    month = month.replace('-', '');
+                    _this.loading = true;
+
+                    _this.url = baseurl + "/jfzd/selectTj?month=" + month;
+
+                    axios.get(_this.url, month)
+                        .then(function (res) {
+                            if(res.data.length > 0){
+                                _this.tableData = res.data;
+                                _this.loading = false;
+                            }else {
+                                _this.tableData = [];
+                                _this.loading = false;
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                }
+            },
+
+            // 导出Excel
+            Excel: function () {
+                var _this=this;
+                var month = _this.searchForm.month;
+                if (month == null || month == ''){
+                    this.$message({
+                        showClose: true,
+                        message: '请选择日期',
+                        type: 'warning'
+                    });
+                } else if(this.tableData.length >0) {
+                    var xlsxParam = {raw: true};
+                    var wb = XLSX.utils.table_to_book(document.querySelector('#exportable'), xlsxParam);
+                    var wbout = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'})
+                    try {
+                        saveAs(new Blob([wbout], {type: 'application/octet-stream'}), '终端交易统计查询.xlsx')
+                    } catch (e) {
+                        if (typeof console !== 'undefined') console.log(e, wbout)
+                    }
+                    return wbout
+                }else {
+                    this.$message.error("无数据,请选择需要导出的数据!!!");
+                }
+            }
+        }
+    })
+
+</script>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<!--    <link rel="stylesheet" href="/css/index.css">-->
+<!--    <link rel="stylesheet" href="/css/public.css">-->
+<!--    <script src="/js/vue.js"></script>-->
+<!--    <script src="/js/index.js"></script>-->
+<!--    <script src="/js/axios.min.js"></script>-->
+<!--    <script src="/js/public.js"></script>-->
+<!--    <script lang="javascript" src="js/xlsx.full.min.js"></script>-->
+<!--    <script src="js/FileSaver.min.js" charset="utf-8"></script>-->
+    <link rel="stylesheet" th:href="@{/css/index.css}"></link>
+    <link rel="stylesheet" th:href="@{/css/public.css}"></link>
+    <script th:src="@{/js/vue.js}"></script>
+    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/axios.min.js}"></script>
+    <script th:src="@{/js/public.js}"></script>
+</head>
+<style>
+    .el-card {
+        margin-left: 30%;
+        width: 560px;
+        height: 150px;
+        margin-top: 0px;
+        /*background: #f7f5f5;*/
+    }
+
+    .el-row {
+        margin-top: 12px;
+    }
+
+    .el-divider {
+        margin-top: 15px;
+    }
+</style>
+<body>
+<div id="uploadExcel" class="main-content" style="right:0px;left:0px;">
+    <div class="ibox-title" style="float:left;position: absolute; width:100%;height:60px;">
+        <!--列表顶部搜索和工具条-->
+        <el-row>
+            <el-col :span="24">
+                <i class="el-icon-info"
+                   style="font-size: 1.2rem;color: #1b7f7f;font-weight: 800; margin-top: 10px">
+                    交易明细按月导入
+                </i>
+                <el-divider></el-divider>
+            </el-col>
+        </el-row>
+        <div class="card-box">
+            <el-card>
+                <el-upload
+                        style="margin-left: 50px;"
+                        ref="upload"
+                        action
+                        :auto-upload="false"
+                        :before-upload="beforeUpload"
+                        :on-remove="handleRemove"
+                        :on-change="fileChange"
+                        :on-exceed="handleExceed"
+                        :disabled="importBtnDisabled"
+                        :limit="1"
+                        :http-request="uploadFile"
+                        :file-list="fileList"
+                        accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                    <el-button style="margin-left: 50px;" slot="trigger" size="small" @click="selectFile">选择文件
+                    </el-button>
+                    <el-button
+                            :loading="fullscreenLoading"
+                            size="small"
+                            style="margin-left: 50px;"
+                            class="el-icon-upload2 el-icon--right"
+                            element-loading-text="拼命上传中..."
+                            v-loading.fullscreen.lock="fullscreenLoading"
+                            @click="submitUpload"
+                    ><span style="margin-left:5px">{{fileUploadBtnText}}</span>
+                    </el-button>
+                    <span slot="tip" class="el-upload__tip">只能上传xls/xlsx文件</span>
+                </el-upload>
+
+            </el-card>
+        </div>
+    </div>
+</div>
+
+
+</body>
+
+
+<script type="text/javascript">
+
+    var uploadExcel = new Vue({
+        el: '#uploadExcel',
+        data: {
+            visible: false,
+            fileUploadBtnText: '点击上传', //上传文件提示文字
+            importBtnDisabled: false, // 按钮是否禁用,
+            fullscreenLoading: false, // 上传文件加载
+            fileList: [] // 上传文件列表
+        },
+
+        methods: {
+            // 上传文件之前的钩子
+            beforeUpload(file) {
+                console.log("上传前")
+                const isText = file.type === 'application/vnd.ms-excel';
+                const isTextComputer = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                if (!isText && !isTextComputer) {
+                    this.$message.warning('请上传excel格式文件！');
+                    this.fileUploadBtnText = '导入失败'
+                    this.fullscreenLoading = false
+                }
+                ;
+                return (isText || isTextComputer);
+            },
+
+            // 覆盖默认的上传行为，自定义上传的实现
+            uploadFile(file) {
+                if (this.fileList.length === 0) {
+                    this.$message.warning('请选择文件')
+                } else {
+                    const data = new FormData()
+                    const fileUps = file.file
+                    this.fullscreenLoading = true
+                    data.append('file', fileUps)
+                    axios({
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        },
+                        url: baseurl + '/jfzd/upload',
+                        data: data,
+                        method: 'post'
+                    }).then(res => {
+                        console.log(res)
+                        if (res.data === 'success') {
+                            this.fileUploadBtnText = '导入成功'
+                            this.fullscreenLoading = false
+                            this.$message({
+                                type: 'success',
+                                message: '导入成功'
+                            })
+                        }
+                    }, err => {
+                        this.fileUploadBtnText = '导入失败'
+                        this.fullscreenLoading = false
+                        this.$message.error('导入失败')
+                    })
+                    this.$refs.upload.clearFiles();//移除文件，防止重复上传
+                }
+            },
+            // 上传excel
+            submitUpload() {
+                this.$refs.upload.submit()
+            },
+
+            //限制只能选中一个文件
+            fileChange(file, fileList) {
+                this.fileList = fileList.slice(-1);
+            },
+            // 文件超出个数限制
+            handleExceed(files, fileList) {
+                this.$message.warning('只能选择 1个文件')
+            },
+            //移除文件
+            handleRemove() {
+                this.fileList = [];
+            },
+            selectFile() {
+                this.fileUploadBtnText = '点击上传'
+            }
+
+        }
+    })
+</script>
+</html>

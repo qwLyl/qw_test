@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/public.css}">
+    <script th:src="@{/js/vue.js}"></script>
+    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/axios.min.js}"></script>
+    <script th:src="@{/js/public.js}"></script>
+    <script lang="javascript" th:src="@{/js/xlsx.full.min.js}"></script>
+    <script th:src="@{/js/FileSaver.min.js}" charset="utf-8"></script>
+
+</head>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .el-scrollbar .el-scrollbar__view .el-select-dropdown__item {
+        height: auto;
+        max-height: 600px;
+        padding: 0;
+        overflow: hidden;
+        overflow-y: hidden;
+    }
+
+    .el-select-dropdown__item.selected {
+        font-weight: normal;
+    }
+
+    .main-content {
+        right: 0px;
+        left: 0px;
+    }
+
+    .ibox-title {
+        float: left;
+        position: absolute;
+        width: 100%;
+        height: 60px;
+    }
+
+    .v-content {
+        background-color: #fff;
+        float: left;
+        overflow-y: hidden;
+        overflow-x: auto;
+        position: absolute;
+        width: 100%;
+        top: 60px;
+        bottom: 0px;
+    }
+</style>
+
+<body>
+<div id="tableView" class="main-content">
+    <div class="ibox-title">
+        <!--列表顶部搜索和工具条-->
+        <el-row>
+            <el-form :inline="true" :model="searchForm" :rules="rules" ref="ruleForm" class="demo-form-inline"
+                     label-width="100px">
+                <el-form-item>
+                    <i class="el-icon-info"
+                       style="font-size: 1.2rem;color: #1b7f7f;font-weight: 800;">
+                        终端档案管理
+                    </i>
+                </el-form-item>
+                <el-form-item style="padding-left: 40px;" prop="valueTitle" label="单位：">
+                    <el-select ref="selectUpResId" :value="searchForm.valueTitle" @clear="clearHandle" placeholder="请选择">
+                        <el-option :value="valueId" :label="searchForm.valueTitle" class="options">
+                            <el-tree id="tree-option" ref="selectTree" :data="data1" :props="props"
+                                     accordion
+                                     :node-key="props.value"
+                                     :default-expanded-keys="defaultExpandedKey" @node-click="handleNodeClick">
+                            </el-tree>
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+                <el-form-item label="终端号：" style="padding-left: 10px;">
+                    <el-input  v-model="searchForm.posid" placeholder="请输入终端号"></el-input>
+                </el-form-item>
+
+                <el-form-item style="padding-left: 50px;">
+                    <el-button icon="el-icon-plus" @click="addClick">
+                        添加
+                    </el-button>
+                </el-form-item>
+
+                <el-form-item style="padding-left: 5px;">
+                    <el-button icon="el-icon-edit" @click="updataClick()">
+                        修改
+                    </el-button>
+                </el-form-item>
+
+                <el-form-item style="padding-left: 5px;">
+                    <el-button icon="el-icon-search" @click="searchClick">
+                        查询
+                    </el-button>
+                </el-form-item>
+
+                <el-form-item style="padding-left: 5px;">
+                    <el-button icon="el-icon-date" @click="Excel">
+                        导出
+                    </el-button>
+                </el-form-item>
+            </el-form>
+        </el-row>
+    </div>
+
+    <!--
+    overflow-y:   hidden 裁剪内容 - 不提供滚动机制
+                   auto 如果溢出框，则应该提供滚动机制
+    -->
+
+    <div class="v-content" style="top:67px">
+        <!--列表-->
+        <el-row>
+            <el-table id="exportable" ref="table" :height="tableHeight" highlight-current-row v-loading="loading"
+                      :data="tableData"
+                      border style="width:100%;white-space:nowrap;" @row-click="LeftTableClick">
+
+                <el-table-column label="序号" type="index" align="center" show-overflow-tooltip width="50px">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="orgno" label="供电编号" width="110px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="orgname" label="供电单位" width="160px;"
+                                 align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="code" label="商户号" width="160px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="posid" label="终端号" width="160px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="orderid" label="序列号" width="160px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="gprs" label="GPRS卡号" width="200px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="type" label="机型" width="160px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="address" label="设备安装地点" width="200px;"
+                                 align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="installdate" label="安装时间" width="160px;"
+                                 align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="village" label="所属行政村" width="200px;"
+                                 align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="trans" label="所属台区" width="160px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="workerid" label="设备责任人编号" width="120px;"
+                                 align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="workername" label="设备责任人" width="190px;"
+                                 align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="state" label="运行状态" width="120px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="note" label="备注" width="160px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="jf_count" label="1到5月缴费笔数" width="160px;"
+                                 align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="money" label="场地租赁费" width="120px;" align="center">
+                </el-table-column>
+                <el-table-column :show-overflow-tooltip="true" prop="telephone" label="联系电话" width="120px;"
+                                 align="center">
+                </el-table-column>
+            </el-table>
+        </el-row>
+
+        <!-- 添加修改对话框 -->
+        <el-dialog :title="title" :before-close="handleClose" style="top: -90px" :visible.sync="open" width="850px"
+                   append-to-body>
+            <el-form ref="form" :model="form" label-width="130px" style="height: 290px;">
+                <el-row style="top: -30px;">
+
+                    <el-col :span="7">
+                        <el-form-item label="供电编号" prop="orgno">
+                            <el-input :disabled="true"  v-model="form.orgno" autocomplete="off" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="供电单位">
+                            <template>
+                                <el-select ref="selectUpResId" :value="searchForm.valueTitle" @clear="clearHandle"
+                                           clearable placeholder="请选择">
+                                    <el-option :value="valueId" :label="searchForm.valueTitle" class="options">
+                                        <el-tree id="tree-option" ref="selectTree" :data="data1" :props="props"
+                                                 accordion
+                                                 :node-key="props.value"
+                                                 :default-expanded-keys="defaultExpandedKey"
+                                                 @node-click="handleNodeClick">
+                                        </el-tree>
+                                    </el-option>
+                                </el-select>
+                            </template>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="9">
+                        <el-form-item label="商户号" prop="code">
+                            <el-input v-model="form.code" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="7">
+                        <el-form-item label="终端号" prop="posid"
+                                      :rules="[
+                                    { required: true, message: '终端号不能为空'},
+                                    { type: 'number', message: '终端号须为数字值'}
+                                     ]"
+                        >
+                            <el-input type="posid" v-model.number="form.posid" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="序列号" prop="orderid">
+                            <el-input v-model="form.orderid" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="9">
+                        <el-form-item label="GPRS卡号" prop="gprs">
+                            <el-input v-model="form.gprs" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="7">
+                        <el-form-item label="机型" prop="type">
+                            <el-input v-model="form.type" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="安装时间" prop="installdate">
+                            <el-input v-model="form.installdate" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="9">
+                        <el-form-item label="设备安装地点" prop="address">
+                            <el-input v-model="form.address" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="7">
+                        <el-form-item label="所属行政村" prop="village">
+                            <el-input v-model="form.village" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="所属台区" prop="trans">
+                            <el-input v-model="form.trans" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="9">
+                        <el-form-item label="设备责任人编号" prop="workerid">
+                            <el-input v-model="form.workerid" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="7">
+                        <el-form-item label="设备责任人" prop="workername">
+                            <el-input v-model="form.workername" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="运行状态" prop="atate">
+                            <el-input v-model="form.state" style=" width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="9">
+                        <el-form-item label="备注" prop="note">
+                            <el-input v-model="form.note" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="7">
+                        <el-form-item label="1到5月缴费笔数" prop="jf_count">
+                            <el-input v-model="form.jf_count" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="场地租赁费" prop="money">
+                            <el-input v-model="form.money" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="9">
+                        <el-form-item label="联系电话" prop="telephone">
+                            <el-input v-model="form.telephone" style="width: 150px;font-weight: bolder;"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancel">取 消</el-button>
+                <el-button @click="submitForm">确 定</el-button>
+            </div>
+        </el-dialog>
+
+    </div>
+</div>
+</body>
+
+<script type="text/javascript">
+
+    var tableView = new Vue({
+        el: '#tableView',
+        data() {
+            var validateValueTitle = (rule, value, callback) => {
+                if (!value) {
+                    callback(new Error('请选择'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                loading: false,
+                defaultExpandedKey: [],
+                valueId: '',
+                select: '',
+                data1: [],
+                props: {
+                    id: 'id',       // ID字段名
+                    label: 'label', // 显示名称
+                    org_typ_cd: 'org_typ_cd', // 所属等级
+                    children: 'children' // 子级字段名
+                },
+                rules: {
+                    valueTitle: [
+                        {validator: validateValueTitle, trigger: 'change'}
+                    ]
+                },
+                url: '',
+                //列表数据
+                tableData: [],
+                //显示加载中样式
+                loading: false,
+                //搜索表单
+                searchForm: {
+                    valueTitle: '',
+                    posid: ''
+                },
+                open: false,
+                title: '',
+                form: {
+                    orgno: '',
+                    orgname: '',
+                    code: '',
+                    posid: '',
+                    orderid: '',
+                    gprs: '',
+                    type: '',
+                    address: '',
+                    installdate: '',
+                    village: '',
+                    trans: '',
+                    workerid: '',
+                    workername: '',
+                    state: '',
+                    note: '',
+                    jf_count: '',
+                    money: '',
+                    telephone: ''
+                },
+                tableHeight: 470,
+                //当前页
+                currentPage: 1,
+                //分页大小
+                pageSize: 100,
+                //总记录数
+                total: 800,
+            }
+        },
+        mounted: function () {
+            this.getOrg();
+
+            this.$nextTick(() => {
+                this.setTableHeight();
+                // 监听窗口大小变化
+                window.onresize = () => {
+                    this.setTableHeight();
+                }
+            });
+        },
+        beforeDestroy: function () {
+            // 由于window.onresize是全局事件，在其他页面改变界面时也会执行，这样可能会出现问题，需要在
+            //离开这个界面时注销window.onresize事件
+            window.onresize = null;
+        },
+
+        methods: {
+
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        this.searchClick();
+                        done();
+                    })
+                    .catch(_ => {
+                    });
+            },
+
+            // 获取点击table中数据行信息
+            LeftTableClick: function (val) {
+                this.form = val;
+            },
+
+            // 修改语句  打开窗口
+            updataClick: function () {
+                if (this.form.orgno != '' && this.form.orgno != null) {
+                    this.open = true;
+                    this.title = '修改信息';
+                    orgnoX = this.form.orgno;
+                    posidX = this.form.posid;
+                    // console.log(this.form);
+                }
+            },
+
+            // 添加语句  打开窗口
+            addClick: function () {
+                this.title = '添加信息';
+                if (this.title = '添加信息') {
+                    this.form.code = '';
+                    this.form.posid = '';
+                    this.form.orderid = '';
+                    this.form.gprs = '';
+                    this.form.type = '';
+                    this.form.address = '';
+                    this.form.installdate = '';
+                    this.form.village = '';
+                    this.form.trans = '';
+                    this.form.workerid = '';
+                    this.form.workername = '';
+                    this.form.state = '';
+                    this.form.note = '';
+                    this.form.jf_count = '';
+                    this.form.money = '';
+                    this.form.telephone = '';
+                    this.open = true;
+                    // console.log(this.form);
+                }
+            },
+
+            // 窗口中添加数据
+            submitForm: function () {
+                var param;
+                var _this = this;
+
+                if (_this.title == '添加信息') {
+                    param = _this.form;
+
+                    if (_this.form.orgno != '' && _this.form.posid != '') {
+                        _this.url = baseurl + "/jfzd/insert_possgl";
+                        _this.open = false;
+
+                        axios.post(_this.url, param).then(function (res) {
+                            if (res.data.id == 0) {
+                                _this.$message({
+                                    message: "添加成功",
+                                    type: 'success'
+                                });
+                                _this.searchClick();
+                            } else {
+                                _this.$message.error("添加失败");
+                            }
+                        })
+                    } else {
+                        this.$message.error("供电单位和终端号不能为空!!");
+                    }
+
+                } else {  // 窗口中修改数据
+                    param = _this.form;
+
+                    if (orgnoX == param.orgno && posidX == param.posid) {
+                        _this.url = baseurl + "/jfzd/updata";
+                        _this.open = false;
+
+                        axios.post(_this.url, param).then(function (res) {
+                            if (res.data.id == 1) {
+                                _this.$message({
+                                    message: "修改成功",
+                                    type: 'success'
+                                });
+                                _this.searchClick();
+                            } else {
+                                _this.$message.error("修改失败");
+                            }
+                        })
+
+                    } else {
+                        this.$message.error("供电单位和终端号不能修改!!");
+                    }
+
+                }
+            },
+
+            // 窗口中取消按钮
+            cancel: function () {
+                this.open = false;
+            },
+
+            // 窗口大小
+            setTableHeight: function () {
+                this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 60;
+            },
+
+            // 下拉框数据的查询
+            getOrg: function () {
+                var _this = this;
+
+                axios.get(baseurl + "/SelectOrg")
+                    .then(function (res) {
+                        _this.data1 = res.data;
+                        /*  _this.valueTitle = res.data[0].label;
+                          _this.valueId = res.data[0].id;*/
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+
+            // 切换选项
+            handleNodeClick: function (node) {
+                if(node[this.props.org_typ_cd] == 5) {
+                    this.searchForm.valueTitle = node[this.props.label];
+                    this.valueId = node[this.props.id];
+                    // this.$emit('getValue', this.valueId);
+                    this.defaultExpandedKey = [];
+                    // 选择器执行完成后，使其失去焦点隐藏下拉框的效果
+                    this.$refs.selectUpResId.blur()
+
+                    this.form.orgno = this.valueId;
+                    this.form.orgname = this.searchForm.valueTitle;
+                }
+            },
+
+            // 清除选中
+            clearHandle: function () {
+                this.searchForm.valueTitle = '';
+                this.valueId = null;
+                this.defaultExpandedKey = [];
+                // this.$emit 通过触发自定义事件，来给触发监听事件
+                // this.$emit('getValue', null);
+                // console.log(JSON.stringify(this.data1))
+            },
+
+            // 查询
+            searchClick: function () {
+                this.$refs.ruleForm.validate((valid) => {
+                    if (valid) {
+                        var _this = this;
+                        var orgno = _this.valueId;
+                        var posid = _this.searchForm.posid;
+                        _this.loading = true;
+
+                        _this.url = baseurl + "/jfzd/selectXldj?orgno=" + orgno + "&posid=" + posid;
+
+                        axios.get(_this.url, orgno, posid)
+                            .then(function (res) {
+                                if(res.data.length > 0){
+                                    _this.tableData = res.data;
+                                    _this.loading = false;
+                                }else {
+                                    _this.tableData = [];
+                                    _this.loading = false;
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+
+            // 导出Excel
+            Excel: function () {
+                if(this.tableData.length >0){
+                    this.$refs.ruleForm.validate((valid) => {
+                        if (valid) {
+                            var xlsxParam = {raw: true};
+                            var wb = XLSX.utils.table_to_book(document.querySelector('#exportable'), xlsxParam);
+                            var wbout = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'})
+                            try {
+                                saveAs(new Blob([wbout], {type: 'application/octet-stream'}), '终端档案管理.xlsx')
+                            } catch (e) {
+                                if (typeof console !== 'undefined') console.log(e, wbout)
+                            }
+                            return wbout
+                        } else {
+                            console.log('error submit!!');
+                    return false;
+                }
+                });
+                }else {
+                    this.$message.error("无数据,请选择需要导出的数据!!!");
+                }
+
+            }
+        }
+    })
+
+</script>
+</html>

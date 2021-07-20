@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zckj.demo.dao.BaseDao">
+    <!-- 系统登录-操作员所在单位信息-->
+    <select id="getOrg" parameterType="String" resultType="org">
+		select * from org_gy where orgno= #{0}
+	</select>
+    <!-- 系统登录-操作员下属单位信息-->
+    <select id="selectOrg" parameterType="String" resultType="org">
+		select * from org_gy where orgno like #{0}||'%' order by orgno,grade
+	</select>
+
+	<select id="SelectOrg" parameterType="Org"   resultType="Org">
+		SELECT * FROM ads_cz_xmz_org WHERE ORG_NO LIKE '43411%' order by org_no
+	</select>
+</mapper>
